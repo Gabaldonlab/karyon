@@ -196,7 +196,6 @@ PATH="$(pwd)/bwa-0.7.15/:${PATH}"
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-echo `date` "Downloading Karyon..."
 # git clone -b $branch --recursive https://github.com/Gabaldonlab/karyon.git >> /dev/null 2>&1 
 # cd karyon
 
@@ -208,7 +207,6 @@ echo `date` "Downloading Karyon..."
 #     tail -n 20 $log
 #     return $retcode
 # fi
-
 
 
 echo 'alias karyon="python /root/src/karyon/scripts/karyon.py"' >> ~/.bashrc
