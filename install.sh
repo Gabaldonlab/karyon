@@ -16,10 +16,9 @@ echo "#        version 0.1a                                  Miguel Angel Naranj
 echo "#####################################################################################"
 echo ""
 echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
-echo ""
 echo "Installation will take 5-10 minutes. "
-echo "To track the installation status execute in the new terminal:"
-echo "  tail -f `pwd`/karyon/$log"
+# echo "To track the installation status execute in the new terminal:"
+# echo "  tail -f `pwd`/karyon/$log"
 echo ""
 
 # sleep
@@ -142,7 +141,7 @@ echo "Installing nQuire"
 git clone https://github.com/clwgg/nQuire.git
 
 echo "Installing anaconda_ete"
-
+echo "To-Do"
 
 echo "Installing Python packages"
 pip install --upgrade pip
@@ -151,7 +150,6 @@ pip install biopython
 pip install psutil
 pip install pysam
 python -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
-
 
 echo "Installing Samtools, Bcftools and Htslib..."
 apt-get update
@@ -217,13 +215,13 @@ echo ""
 echo "To try Karyon, execute:"
 # To-Do
 # echo "cd karyon; ./karyon.py -v -i test/*.fq.gz -f test/contigs.fa -o test/run1"
-echo ""
-echo "To uninstall execute:"
-echo "rm -rI `pwd`"
-echo ""
+# echo ""
+# echo "To uninstall execute:"
+# echo "rm -rI `pwd`"
+# echo ""
 # To-Do
 echo "#####################################################################################"
-echo "# Redundans depends on several programs (http://bit.ly/redundans_dependencies)      #"
+echo "# Karyon depends on several programs (http://bit.ly/redundans_dependencies)      #"
 echo "# Acknowledge their authors, get familiar with licensing and register if necessary. #"
 echo "#####################################################################################"
 echo ""
