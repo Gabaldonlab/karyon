@@ -1,24 +1,21 @@
 #!/bin/bash
 ###
 # Karyon installer for UNIX.
-# bash <(curl -Ls https://github.com/Gabaldonlab/karyon/karyon_installer)
 # version 0.1a
 ###
 
 branch="master" 
 if [ ! -z $1 ]; then branch=$1; fi
 
-echo "#####################################################################################"
-echo "#                                                                                   #"
-echo "#                                   Karyon installer                                #"
-echo "#                                                                                   #"
-echo "#        version 0.1a                                  Miguel Angel Naranjo         #"
-echo "#####################################################################################"
+echo "##################################################################################################"
+echo "#                                                                                                #"
+echo "#                                         Karyon installer                                       #"
+echo "#                                                                                                #"
+echo "#        version 0.1a                                             Miguel Angel Naranjo           #"
+echo "##################################################################################################"
 echo ""
 echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
 echo "Installation will take 5-10 minutes. "
-# echo "To track the installation status execute in the new terminal:"
-# echo "  tail -f `pwd`/karyon/$log"
 echo ""
 
 # sleep
@@ -32,9 +29,6 @@ exists()
 {
   command -v "$1" >/dev/null 2>&1
 }
-
-# real software to install
-# awk wget tar git gcc g++ make cd ln date ldconfig unzip python samtools
 
 error=""
 # check if all basic programs exists
@@ -70,8 +64,15 @@ done
 
 # skip if error
 if [ ! -z $error ]; then
-    echo -e "\nAborted due to missing dependencies (see above)!"
-    return 1;
+    echo -n "We've finded missing dependencies.\n"
+    echo -n "Would you like to install (y or n)?\n"
+    read response
+    if [ $response != "y" ]; then        
+        echo "\nAborted due to missing dependencies (see above)!"
+        return 1;
+    else
+        sh install_dependencies.sh
+    fi
 fi
 
 # check python version 
@@ -85,7 +86,7 @@ if [ $PyVer != "2.7" ] && [ $PyVer != "2.6" ]; then
     return 1
 fi
 echo " Everything looks good :) Let's proceed..."
-
+sleep 2s
 
 pwd=`pwd`
 
@@ -141,10 +142,12 @@ echo "Installing nQuire"
 git clone https://github.com/clwgg/nQuire.git
 
 echo "Installing anaconda_ete"
-echo "To-Do"
+wget https://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O ~/miniconda.sh
+bash ~/miniconda.sh -b -p $HOME/miniconda
 
 echo "Installing Python packages"
-pip install --upgrade pip
+# pip install --upgrade pip
+python -m pip install --upgrade pip
 pip install numpy
 pip install biopython
 pip install psutil
@@ -179,8 +182,6 @@ make
 cd ..
 
 
-PATH="$(pwd)/samtools-1.9/:${PATH}"
-PATH="$(pwd)/bcftools-1.9/:${PATH}"
 
 echo "Installing BWA"
 wget https://github.com/lh3/bwa/releases/download/v0.7.15/bwa-0.7.15.tar.bz2
@@ -189,39 +190,20 @@ cd bwa-0.7.15
 make 
 cd ..
 
-PATH="$(pwd)/bwa-0.7.15/:${PATH}"
+
+dep_folder=/home/dependencies
+PATH="$HOME/miniconda/bin:${PATH}"
+PATH="$dep_folder/samtools-1.9/:${PATH}"
+PATH="$dep_folder/bcftools-1.9/:${PATH}"
+PATH="$dep_folder/bwa-0.7.15/:${PATH}"
+echo 'alias karyon="python $(pwd)/scripts/karyon.py"' >> ~/.bashrc
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-# git clone -b $branch --recursive https://github.com/Gabaldonlab/karyon.git >> /dev/null 2>&1 
-# cd karyon
-
-# compile dependencies
-# sh bin/.compile.sh `pwd`/$log
-# retcode=$?; 
-# if [ $retcode -gt 0 ]; then
-#     echo "  [$retcode] ERROR!"
-#     tail -n 20 $log
-#     return $retcode
-# fi
-
-
-echo 'alias karyon="python /root/src/karyon/scripts/karyon.py"' >> ~/.bashrc
-
-
 echo `date` "Installation finished!"
-echo ""
-echo "To try Karyon, execute:"
-# To-Do
-# echo "cd karyon; ./karyon.py -v -i test/*.fq.gz -f test/contigs.fa -o test/run1"
-# echo ""
-# echo "To uninstall execute:"
-# echo "rm -rI `pwd`"
-# echo ""
-# To-Do
-echo "#####################################################################################"
-echo "# Karyon depends on several programs (http://bit.ly/redundans_dependencies)      #"
-echo "# Acknowledge their authors, get familiar with licensing and register if necessary. #"
-echo "#####################################################################################"
+echo "##################################################################################################"
+echo "# Karyon depends on several programs (https://github.com/Gabaldonlab/karyon#prerequisities)      #"
+echo "# Acknowledge their authors, get familiar with licensing and register if necessary.              #"
+echo "##################################################################################################"
 echo ""
