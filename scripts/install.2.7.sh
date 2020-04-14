@@ -71,7 +71,7 @@ if [ ! -z $error ]; then
         echo "\nAborted due to missing dependencies (see above)!"
         return 1;
     else
-        sh install_dependencies.sh
+        sh install.dependencies.sh
     fi
 fi
 
