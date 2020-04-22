@@ -1,2 +1,0 @@
-/home/mnaranjo/Documents/C_metapsilosis_SRA/SRR10335768_1.fastq	101	0.0	5882510916	64	1	/home/mnaranjo/Documents/C_metapsilosis_SRA/SRR10335768_2.fastq	fastq	no-compression
-/home/mnaranjo/Documents/C_metapsilosis_SRA/SRR10335768_2.fastq	101	0.0	5882510916	64	2	/home/mnaranjo/Documents/C_metapsilosis_SRA/SRR10335768_1.fastq	fastq	no-compression
