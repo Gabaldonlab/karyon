@@ -77,16 +77,16 @@ fi
 
 # check python version
 
-PyVer=`python --version 2>&1 | cut -f2 -d" " | cut -f-2 -d"."`
-if [ $PyVer != "2.7" ] && [ $PyVer != "2.6" ]; then 
-    echo ""
-    echo "[ERROR] Install Python 2.7!"
-    echo "If you have Python 2.7 already installed, you can either "
-    echo "make an alias before installation and use of Redundans ('alias python=python2.7' should do)"
-    echo "or use Python virtual environment (https://virtualenv.pypa.io)."
-    return 1
-fi
-echo " Everything looks good :) Let's proceed..."
+#PyVer=`python --version 2>&1 | cut -f2 -d" " | cut -f-2 -d"."`
+#if [ $PyVer != "2.7" ] && [ $PyVer != "2.6" ]; then 
+#    echo ""
+#    echo "[ERROR] Install Python 2.7!"
+#    echo "If you have Python 2.7 already installed, you can either "
+#    echo "make an alias before installation and use of Redundans ('alias python=python2.7' should do)"
+#    echo "or use Python virtual environment (https://virtualenv.pypa.io)."
+#    return 1
+#fi
+#echo " Everything looks good :) Let's proceed..."
 sleep 2s
 
 pwd=`pwd`
@@ -149,19 +149,20 @@ make submodules
 make
 cd ..
 
-echo "Installing anaconda_ete"
+echo "Installing KAT"
 conda install kat
+
 #wget https://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O ~/miniconda.sh
 #bash ~/miniconda.sh -b -p $HOME/miniconda
 
 echo "Installing Python packages"
 # pip install --upgrade pip
-python -m pip install --upgrade pip
-pip install numpy
-pip install biopython
-pip install psutil
-pip install pysam
-python -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
+python2 -m pip install --upgrade pip
+pip2 install numpy
+pip2 install biopython
+pip2 install psutil
+pip2 install pysam
+python2 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
 
 echo "Installing Samtools, Bcftools and Htslib..."
 apt-get update
@@ -190,8 +191,6 @@ cd bcftools-1.9
 make
 cd ..
 
-
-
 echo "Installing BWA"
 wget https://github.com/lh3/bwa/releases/download/v0.7.15/bwa-0.7.15.tar.bz2
 tar -vxjf bwa-0.7.15.tar.bz2
@@ -213,7 +212,6 @@ PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/2.7/karyon.py"' >> ~/.bashrc
 
 chmod 777 ./*
-
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 

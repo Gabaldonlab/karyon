@@ -61,7 +61,6 @@ if __name__ == '__main__':
 	parser.add_argument('-l', '--libraries', required=True, nargs='+', help="Fastq libraries to use for assembly and variant calling. Unsuitable libraries for any of the steps will be ignored")
 	parser.add_argument('-d', '--output_directory', required=True, help='Directory where all the output files will be generated')
 	parser.add_argument('-r', '--reference', default=False, help='Reference assembly. If provided, it will skip the initial assembly step')
-	parser.add_argument('-a', '--try_again', default=False, help='Use a previous karyon results and skips already computed steps')
 	parser.add_argument('-K', '--dirty_kitchen', action='store_true', default=False, help='If this tag is active, the program will not remove all intermediary files in the fodler kitchen after it has finished')
 	parser.add_argument('-T', '--no_trimming', action='store_true', default=False, help='If this tag is active, the program will skip the trimming step')
 	parser.add_argument('-R', '--no_redundans', action='store_true', default=False, help='If this tag is active, the program will not launch redundans. Remember that redundans is used to perform many downstream analyses. If you skip it, the analyses may not make much sense.')
@@ -126,8 +125,8 @@ if __name__ == '__main__':
 			sys.exit(1)
 		else:
 			os.mkdir(args.output_directory)
-	else :
-		os.rmdir(args.output_directory)
+	else:
+		# os.rmdir(args.output_directory)
 		os.mkdir(args.output_directory)
 	os.system("mkdir "+ home + "kitchen/"+job_ID)
 
@@ -194,9 +193,9 @@ if __name__ == '__main__':
 	karyonjobfile = open(true_output+name+"_karyon.job", 'a')
 	karyonjobfile.write("\n")
 	if args.reference == False:
-		karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+		karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+true_output+"dipspades/consensus_contigs.fasta -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
 	else:
-		karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+		karyonjobfile.write("python "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ args.reference + "-o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
 	karyonjobfile.close()
 
 	#5) Create job files
@@ -206,7 +205,7 @@ if __name__ == '__main__':
 
 	#7) We create the plots
 	if args.no_redundans == True:
-		if args.reference != False:
+		if args.reference == True:
 			reduced_assembly = args.reference
 		else:
 			reduced_assembly = true_output+"dipspades/consensus_contigs.fasta"
