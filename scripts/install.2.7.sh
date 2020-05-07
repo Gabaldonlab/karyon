@@ -199,6 +199,12 @@ cd bwa-0.7.15
 make 
 cd ..
 
+echo "Installing Redundans"
+git clone --recursive https://github.com/lpryszcz/redundans.git
+cd redundans && bin/.compile.sh
+cd ..
+
+
 rm ./*.bz2
 rm ./*.zip
 rm ./*.zip.1
@@ -212,7 +218,9 @@ PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/2.7/karyon.py"' >> ~/.bashrc
 
-chmod 777 ./*
+cd ..
+chmod -R 777 dependencies
+cd dependencies
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*

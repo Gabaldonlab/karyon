@@ -27,10 +27,8 @@ def call_SPAdes(library_file, path, output, name, commands, no_diploid, memory_l
 	
 	outputfile = open(output+name+"_karyon.job", 'w')
 	if no_diploid == True:
-		outputfile.write("python " + path + "bin/spades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output)
+		outputfile.write("python2 " + path + "bin/spades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output+"spades/")
 	else:
-		outputfile.write("python " + path + "bin/dipspades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output)
+		outputfile.write("python2 " + path + "bin/dipspades.py" + libstring + " -t " + str(nodes) + " -m " +  str(memory_limit) + " " +commands + "-o " + output)
 	outputfile.write("\n")
 	outputfile.close()
-
-#~ call_SPAdes(args.library_file, args.path, args.output, args.name, args.commands)

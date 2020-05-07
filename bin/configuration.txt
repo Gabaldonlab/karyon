@@ -13,8 +13,8 @@
 +karyon
 @/home/mnaranjo/Documents/karyon/
 
-+SOAPdeNovo
-@/home/mnaranjo/Documents/karyon_docker/src/karyon/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
++SOAPdenovo
+@/home/mnaranjo/Documents/karyon/scripts/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
 >-K 63
 >-R
 
@@ -26,7 +26,7 @@
 @/home/mnaranjo/Documents/karyon/scripts/dependencies/Trimmomatic-0.36/
 
 +Redundans
-@/home/mnaranjo/Documents/redundans/
+@/home/mnaranjo/Documents/karyon/scripts/dependencies/redundans/
 
 +samtools
 @
@@ -35,7 +35,7 @@
 @/home/mnaranjo/Documents/karyon/scripts/dependencies/picard-tools-1.78/
 
 +GATK
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/gatk-4.1.4.1/gatk
+@/home/mnaranjo/Documents/karyon/scripts/dependencies/gatk-4.0.12.0/gatk
 
 +BWA
 @

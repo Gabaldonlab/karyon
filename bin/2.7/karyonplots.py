@@ -16,27 +16,6 @@ import scipy.stats
 from decimal import Decimal
 from scipy import stats
 
-'''
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument('-f', '--fasta', required=True, help="fasta file used as input")
-	parser.add_argument('-o', '--output', required=True, help="Output prefix")
-	parser.add_argument('-v', '--vcf', required=True, help="VCF file used as input")
-	parser.add_argument('-p', '--pileup', required=True, help="Mpileup file used as input")
-	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
-	parser.add_argument('-l', '--library', required=True, help="Illumina library used for the KAT plot")
-	parser.add_argument('-w', '--wsize', required=True, help="Window size for plotting")
-	parser.add_argument('-c', '--counter', default=20, help="Number of scaffolds to analyze")
-	parser.add_argument('-s', '--scafsize', default=False, help="Will ignore scaffolds with length below the given threshold")
-	parser.add_argument('-S', '--scafmaxsize', default=False, help="Will ignore scaffolds with length above the given threshold")
-	
-args = parser.parse_args()
-'''
-
-
-
-
-
 def scaffold_len_lin(fasta, window_size, fastainput, output):
 	lenlist = []
 	for i in fastainput:
@@ -77,10 +56,6 @@ def extract_vcf_data (vcf_file, quality_filter, window_size):
 	for line in vcf_file:
 		if line[0] == "#": continue
 		chunk = line.split("\t")
-		#if args.scafsize != False:
-			#if (lendict[chunk[0]]) <= scaf_size:continue
-		#if args.scafmaxsize != False:
-			#if (lendict[chunk[0]]) >= scaf_max_size: continue
 		if float(chunk[5]) < quality_filter: continue
 		if chunk[0] != curr_scaffold:
 			curr_scaffold = chunk[0]
@@ -90,7 +65,7 @@ def extract_vcf_data (vcf_file, quality_filter, window_size):
 		elif int(chunk[1]) >= curr_pos + window_size:
 			snp_dict[curr_scaffold+"_"+str(curr_pos)] = snp_count
 			if (int(chunk[1])-curr_pos)/window_size > 1:
-				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
+				for i in range(1, int((int(chunk[1])-curr_pos)//window_size)):
 					snp_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
 			snp_count = 1
@@ -107,10 +82,6 @@ def extract_pileup_data (pileup_file, window_size):
 	for line in pileup_file:
 		if line[0] == "#": continue
 		chunk = line.split()
-		#if args.scafsize != False:
-			#if (lendict[chunk[0]]) <= scaf_size:continue
-		#if args.scafmaxsize != False:
-			#if (lendict[chunk[0]]) >= scaf_max_size: continue
 		if chunk[0] != curr_scaffold:
 			curr_scaffold = chunk[0]
 			curr_pos = 0
@@ -119,13 +90,12 @@ def extract_pileup_data (pileup_file, window_size):
 		elif int(chunk[1]) >= curr_pos + window_size:
 			cov_dict[curr_scaffold+"_"+str(curr_pos)] = numpy.mean(coverage)
 			if (int(chunk[1])-curr_pos)/window_size > 1:
-				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
+				for i in range(1, int((int(chunk[1])-curr_pos)//window_size)):
 					cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-			coverage = [int(chunk[7][chunk[7].find('=')+1: chunk[7].find(';')])]
-			#coverage = [ int(chunk[7].split(';')[0].split('=')[1]) ]
-		else: 
-			coverage.append(int(chunk[3]))
+			coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+		else:
+			coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
 	pileup_file.seek(0)
 	return cov_dict
 
@@ -142,7 +112,7 @@ def var_v_cov(vcf, pileup, window_size, output):
 			x.append(snp_density[element])
 			y.append(mean_cov[element])
 	xy = np.vstack([x,y])
-	z = gaussian_kde(xy)(xy)
+	#z = gaussian_kde(xy)(xy)
 	plt.figure(figsize=(15,10))
 	fig, ax = plt.subplots()
 	x1 = pd.Series(x, name='SNPs in '+str(window_size)+" base pairs")
@@ -150,8 +120,8 @@ def var_v_cov(vcf, pileup, window_size, output):
 	#ax.scatter(x, y, c=z, s=10, edgecolor='')
 	ax = sns.jointplot(x1,x2,kind="kde", height=7, space=0)
 	plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+'.png')
-	#plt.xlabel('SNPs in '+str(window_size)+"base pairs")
-	#plt.ylabel('Coverage')
+	plt.xlabel('SNPs in '+str(window_size)+"base pairs")
+	plt.ylabel('Coverage')
 	plt.close()
 	return mean_cov
 
@@ -173,12 +143,12 @@ def cov_plot(pileup, window_size, output):
 		elif int(chunk[1]) >= curr_pos + window_size:
 			cov_dict[curr_scaffold+"_"+str(curr_pos)] = coverage
 			if (int(chunk[1])-curr_pos)/window_size > 1:
-				for i in range(1, (int(chunk[1])-curr_pos)/window_size):
+				for i in range(1, int((int(chunk[1])-curr_pos)//window_size)):
 					cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 			curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-			coverage = [int(chunk[3])]
+			coverage = [int(line[line.find("DP=")+3:].split(";")[0])]
 		else: 
-			coverage.append(int(chunk[3]))
+			coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
 	data = []
 	meanlist = []
 	for element in cov_dict:
@@ -213,10 +183,7 @@ def fair_coin_global(vcf, window_size, output):
 				else:
 					value_list.append(float(values[1])/(int(values[0])+int(values[1])))
 					binomial_list.append(numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1])))	
-	#expected_freq = numpy.random.binomial(n=(sum(total_list)), p=0.5, size=None)
-	#numpy.random.normal(loc=0.5, scale=np.std(value_list), size=len(value_list))
-
-	print scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0)
+	print (scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0))
 	bins = numpy.linspace(0, 1, 100)
 	sns.distplot(binomial_list, bins, label='exp')
 	sns.distplot(value_list, bins, label='obs')
@@ -264,20 +231,11 @@ def fair_coin_scaff(vcf, window_size, counter, output):
 		binomial_sublist = numpy.random.choice(binomial_list, size=sampling, replace=False)
 		for i in binomial_sublist:
 			binomial_altsublist.append(1-i)
-
-		#expected_freq = numpy.random.binomial(n=(sum(total_list)), p=0.5, size=None)
-		#numpy.random.normal(loc=0.5, scale=np.std(value_list), size=len(value_list))
-
-		#print scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0)
-
 		bins = numpy.linspace(0, 1, 10000)
 	for value in value_dict:
 		if len(value_dict[value]) > 0:
-			sns.distplot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)
-			#sns.distplot(alt_dict[value+"_alt"], bins, hist=False, color='DarkGoldenRod')
-	
+			sns.distplot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)	
 	sns.distplot(binomial_sublist, bins, hist=False, label='exp', color="Maroon")
-	#sns.distplot(binomial_sublist, bins, hist=False, label='altexp', color="Maroon")
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -305,16 +263,16 @@ def cov_v_len(pileup, fastainput, output):
 			if curr_scaffold == '':
 				curr_scaffold = chunk[0]
 				coverage = []
-				coverage.append(int(chunk[3]))
+				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
 				continue
 			else:
 				curr_scaffold = chunk[0]
 				y.append(np.mean(coverage))
 				x.append(len(fastainput.get_raw(chunk[0]).decode()))
 				coverage = []
-				coverage.append(int(chunk[3]))
+				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
 		else: 
-			coverage.append(int(chunk[3]))
+			coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
 	plt.plot(x,y, '.')
 	ax = plt.subplot()
 	ax.set_xscale("log", nonposx='clip')
@@ -459,26 +417,24 @@ def nQuire_plot(value_list, window_size, newpath):
 		z = gaussian_kde(xy)(xy)
 		plt.scatter(pos_list, all_refalt_list, c=z, s=30, edgecolor='')
 		plt.savefig(newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png")
-		print newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png has been created"
-		plt.clf()
-	
+		print (newpath+"nQuireplots_ws"+str(window_size)+"/"+name+".png has been created")
+		plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	# os.system(KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport")
-	cmd = KAT+" comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
+	cmd = KAT+"kat comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
-	print '###############'
+	print ('###############')
 	print ('KAT:', returned_value)
-	print '###############'
+	print ('###############')
 
 
 def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name):
 	if out_name==False:
 		outname = ''
 	newpath = newpath+"/"+out_name
-	# os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
-	# os.system("tabix -p vcf "+ vcf+".gz")
-	vcf_file = open(vcf+".gz", 'r')
+	os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
+	os.system("tabix -p vcf "+ vcf+".gz")
+	vcf_file = open(vcf, 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	kitchen = kitchen+kitchenID
 
@@ -487,7 +443,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
 	step = window_size/2
-	# VCF = pysam.VariantFile(vcf+".gz", 'r')
+	#VCF = pysam.VariantFile(vcf+".gz", 'r')
 	if newpath.find("/") > -1:
 		originalpath=os.getcwd()
 	os.makedirs(newpath+"nQuireplots_ws"+str(window_size))
@@ -501,12 +457,6 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	cov_v_len(mpileup, fastainput, newpath)
 	katplot(fasta_file, library, KAT, newpath)
 	# window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
-
-#newpath = args.output[:args.output.rfind("/")]+"/"
-#allplots(window_size, vcf_file, fasta_file, bam_file, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID)
-
-
-
 	
 
 

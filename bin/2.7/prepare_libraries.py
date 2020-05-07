@@ -90,13 +90,13 @@ def phred_parse (fastqlist, sample_size):
 					else: continue
 				if switch == True:
 					if line.find("Z") > -1:
-						phred64dict[element] = "33"
+						phred64dict[element] = "64"
 						break
 				else:
 					switch = False
 	for element in fastqlist:
 		if element not in phred64dict:
-			phred64dict[element] = "64"
+			phred64dict[element] = "33"
 	return phred64dict
 
 def hypo_dict_parse(fastqlist):
@@ -171,6 +171,6 @@ def preparation(initial_fastq, sample_size, output_report):
 
 	report = open(output_report, 'w')
 	for i in fastq:
-		print i + "\t" + str(mean_read_dict[i][0]) + "\t" + str(mean_read_dict[i][1]) + "\t" + str(library_size_dict[i]) + "\t" + str(phred64dict[i]) + "\t" + str(type_dict[i][0]) + "\t" + str(type_dict[i][1]) + "\t" + format_dict[i] + "\t" + compressed_dict[i]+"\n"
+		print (i + "\t" + str(mean_read_dict[i][0]) + "\t" + str(mean_read_dict[i][1]) + "\t" + str(library_size_dict[i]) + "\t" + str(phred64dict[i]) + "\t" + str(type_dict[i][0]) + "\t" + str(type_dict[i][1]) + "\t" + format_dict[i] + "\t" + compressed_dict[i]+"\n")
 		report.write(i + "\t" + str(mean_read_dict[i][0]) + "\t" + str(mean_read_dict[i][1]) + "\t" + str(library_size_dict[i]) + "\t" + str(phred64dict[i]) + "\t" + str(type_dict[i][0]) + "\t" + str(type_dict[i][1]) + "\t" + format_dict[i] + "\t" + compressed_dict[i]+"\n")
 	report.close()

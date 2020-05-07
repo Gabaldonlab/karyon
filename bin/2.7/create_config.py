@@ -11,7 +11,7 @@ if __name__ == '__main__':
 	parser.add_argument('--SPADes', default='')
 	parser.add_argument('--KAT', default='')
 	parser.add_argument('--nQuire', default='')
-	parser.add_argument('--SOAPdeNovo', default='')
+	parser.add_argument('--SOAPdenovo', default='')
 	parser.add_argument('-o', '--output')
 	args = parser.parse_args()
 	
