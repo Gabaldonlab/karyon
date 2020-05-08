@@ -1,4 +1,4 @@
-import argparse
+import argparse, os
 
 if __name__ == '__main__':	
 	parser.add_argument('--karyon', default='')
@@ -34,36 +34,36 @@ config_file.write(#The config file is parsed by some scripts in the pipeline and
 
 )
 config_file.write('+karyon\n')
-config_file.write('@'+ args.karyon)
+config_file.write('@'+ os.path.abspath(args.karyon))
 
 config_file.write('+redundans\n')
-config_file.write('@'+ args.redundans)
+config_file.write('@'+ os.path.abspath(args.redundans))
 
 config_file.write('+BWA\n')
-config_file.write('@'+ args.BWA)
+config_file.write('@'+ os.path.abspath(args.BWA))
 
 config_file.write('+GATK\n')
-config_file.write('@'+ args.GATK)
+config_file.write('@'+ os.path.abspath(args.GATK)+"gatk")
 
 config_file.write('+samtools\n')
-config_file.write('@'+ args.samtools)
+config_file.write('@'+ os.path.abspath(args.samtools))
 
 config_file.write('+bcftools\n')
-config_file.write('@'+ args.bcftools)
+config_file.write('@'+ os.path.abspath(args.bcftools))
 
 config_file.write('+picard-tools\n')
-config_file.write('@'+ args.picard-tools)
+config_file.write('@'+ os.path.abspath(args.picard-tools))
 
 config_file.write('+SPADes\n')
-config_file.write('@'+ args.SPADes)
+config_file.write('@'+ os.path.abspath(args.SPADes))
 
 config_file.write('+KAT\n')
-config_file.write('@'+ args.KAT)
+config_file.write('@'+ os.path.abspath(args.KAT)+"kat")
 
 config_file.write('+nQuire\n')
-config_file.write('@'+ args.nQuire)
+config_file.write('@'+ os.path.abspath(args.nQuire)+"nQuire")
 
 config_file.write('+SOAPdeNovo\n')
-config_file.write('@'+ args.SOAPdeNovo)
+config_file.write('@'+ os.path.abspath(args.SOAPdeNovo))
 
 config_file.close()
