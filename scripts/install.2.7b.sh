@@ -223,7 +223,8 @@ PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/2.7/karyon.py"' >> ~/.bashrc
 
-python ../bin/2.7/create_config.py --karyon ../ --redundans ./dependencies/redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picard-tools ./dependencies/picard-tools-$PICARD_VERSION --SPADes /dependencies/SPAdes-$SPAdes_VERSION-Linux --nQuire /dependencies/nQuire/ --SOAPdenovo /dependencies/SOAPdenovo2-bin-LINUX-generic-r240 --output ../bin/configuration.txt
+pwd
+python ../../bin/2.7/create_config.py --karyon ../ --redundans ./dependencies/redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picardtools ./dependencies/picard-tools-$PICARD_VERSION --SPADes /dependencies/SPAdes-$SPAdes_VERSION-Linux --nQuire /dependencies/nQuire/ --SOAPdenovo /dependencies/SOAPdenovo2-bin-LINUX-generic-r240 --output ../../bin/configuration.txt
 
 cd ..
 chmod -R 777 dependencies
