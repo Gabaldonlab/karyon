@@ -77,11 +77,11 @@ fi
 
 # check python version 
 PyVer=`python --version 2>&1 | cut -f2 -d" " | cut -f-2 -d"."`
-if [ $PyVer != "2.7" ] && [ $PyVer != "2.6" ]; then 
+if [ $PyVer > "3" ]; then 
     echo ""
-    echo "[ERROR] Install Python 2.7!"
-    echo "If you have Python 2.7 already installed, you can either "
-    echo "make an alias before installation and use of Redundans ('alias python=python2.7' should do)"
+    echo "[ERROR] Install Python 3.X!"
+    echo "If you have Python 3.X already installed, you can either "
+    echo "make an alias before installation and use of Redundans ('alias python=python3.X' should do)"
     echo "or use Python virtual environment (https://virtualenv.pypa.io)."
     return 1
 fi

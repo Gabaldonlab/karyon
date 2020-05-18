@@ -4,5 +4,4 @@ dependencies/
 .gitignore
 
 # Ignore temp files
-/bin/2.7/*.pyc
-/bin/2.7/*.py~
+/bin/3.6/*.py.bak
