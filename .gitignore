@@ -4,4 +4,5 @@ dependencies/
 .gitignore
 
 # Ignore temp files
-/bin/3.6/*.py.bak
+/bin/*.py.bak
+/dataset/

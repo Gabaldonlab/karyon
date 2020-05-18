@@ -77,7 +77,7 @@ fi
 
 # check python version 
 PyVer=`python --version 2>&1 | cut -f2 -d" " | cut -f-2 -d"."`
-if [ $PyVer > "3" ]; then 
+if [ $PyVer <= "3" ]; then 
     echo ""
     echo "[ERROR] Install Python 3.X!"
     echo "If you have Python 3.X already installed, you can either "
