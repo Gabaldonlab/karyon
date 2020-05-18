@@ -10,10 +10,10 @@ import pysam
 
 import string
 import random
-from .spades_recipee import call_SPAdes
-from .prepare_libraries import preparation
-from .trimming_libraries import trimming
-from .varcall_recipee import var_call
+from spades_recipee import call_SPAdes
+from prepare_libraries import preparation
+from trimming_libraries import trimming
+from varcall_recipee import var_call
 
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits): 
 	return ''.join(random.choice(chars) for _ in range(size))
