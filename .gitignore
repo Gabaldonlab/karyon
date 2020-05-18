@@ -2,3 +2,7 @@
 dependencies/
 .git/
 .gitignore
+
+# Ignore temp files
+*.pyc
+*.py~
