@@ -55,7 +55,8 @@ def select_champion(fastq):
 	return champion
 
 
-if __name__ == '__main__':	
+if __name__ == '__main__':
+
 	parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
 	parser.add_argument('-d', '--output_directory', required=True, help='Directory where all the output files will be generated. Required.')
 	parser.add_argument('-o', '--output_name', default=False, help='Prefix name for all the output files. If omitted, it will generate a random string. This random string will be the same as the identifier for intermediate files.')
@@ -76,8 +77,6 @@ if __name__ == '__main__':
 	parser.add_argument('-m', '--memory_limit', default=False, help='Memory limit for all the programs set in Gb. By default it will try to use all memory available.')
 	parser.add_argument('-M', '--memory_fraction', default=1, help='Proportion of total memory to use by all programs. By default it will use all available memory (default=1), but it may be useful to reduce the percent to avoid freezing other tasks of the computer during peaks.')
 	parser.add_argument('-n', '--nodes', default=False, help='Number of computation nodes to use. If set a number higher than total, it will use total. If set a number lower than total, it will calculate memory usage based on the fraction of nodes set with respect to total existing nodes.')
-
-
 	args = parser.parse_args()
 
 	###Defines the location of configuration.txt if setting by default###
@@ -108,17 +107,28 @@ if __name__ == '__main__':
 	job_ID = args.job_id if args.job_id else id_generator()
 	name = args.output_name if args.output_name else job_ID
 
-	print ('###############')
+	config_dict = parse_config(config_path)
+	home = config_dict["karyon"][0]	
+		
+	header_print = '#################'
+
+	## ---------------
+	## paths
+	## ---------------
+	path_tmp = os.path.join(home, "tmp")
+	path_job_ID = os.path.join(home, "tmp", job_ID)
+	prepared_libs = os.path.join(path_job_ID, "prepared_libraries.txt")
+	trimmomatic_job = os.path.join(path_job_ID, "trimmomatic.job")
+	keep_existing = os.path.join(path_job_ID, "_keep_existing_")
+
+	print (header_print)
 	print ('Config. path: '+str(config_path))
 	print ("RAM Limit: "+str(ram_limit)+"Gb")
 	print ("Nodes: "+str(n_nodes))
 	print ("Job ID: "+str(job_ID))
 	print ("Job name: "+str(name))
-	print ('###############')
-
-	config_dict = parse_config(config_path)
-	home = config_dict["karyon"][0]
-	prepared_libs = home + "kitchen/" + job_ID + "/prepared_libraries.txt"
+	print ("Job folder: "+str(path_job_ID))
+	print (header_print)
 
 	###Checks that the output is not a file. If it does not exist, it creates it.###
 	if not os.path.isdir(args.output_directory):
@@ -128,33 +138,34 @@ if __name__ == '__main__':
 			sys.exit(1)
 		else:
 			os.mkdir(args.output_directory)
-	elif args.try_again == True: pass
+	elif args.try_again == True: 
+		pass
 	else:
 		# os.rmdir(args.output_directory)
 		os.mkdir(args.output_directory)
-	os.system("mkdir "+ home + "kitchen/"+job_ID)
+	os.system("mkdir "+ path_job_ID)
 
 	###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
-	print ('###############')
+	print (header_print)
 	print ('Preparing libraries')	
-	print ('###############')
+	print (header_print)
 	libs = ''
 	for i in args.libraries:
 		libs = libs + " " + i
 	preparation(libs.split(), 10000, prepared_libs)
 
 	libs_parsed = ''
-	if not args.no_trimming:
-		print ('###############')
+	if not args.no_trimming and 'trimmomatic' in config_dict:
+		print (header_print)
 		print ('Trimmomatic')
-		print ('###############')
+		print (header_print)
 	
 		if config_dict['trimmomatic'][1] == '':
 			trimmo_commands = ''
 		else:
 			trimmo_commands = " -c " + config_dict['trimmomatic'][1]
-		trimming(prepared_libs, config_dict["trimmomatic"][0], trimmo_commands, home + "kitchen/"+job_ID+"/trimmomatic.job", true_output, False)
-		os.system("bash " + home + "kitchen/"+job_ID+"/trimmomatic.job")
+		trimming(prepared_libs, config_dict["trimmomatic"][0], trimmo_commands, trimmomatic_job, true_output, False)
+		os.system("bash " + trimmomatic_job)
 	
 		for i in os.listdir(args.output_directory):
 			if i.find("parsed_") > -1:
@@ -168,15 +179,19 @@ if __name__ == '__main__':
 		chunk = i.split()
 		if chunk[5] == "1":
 			libstring = libstring + os.path.abspath(chunk[0]) + " " + os.path.abspath(chunk[6]) + " "
-		elif chunk[5] == "2": continue
-		else: backstring = backstring + os.path.abspath(chunk[0]) + " "
+		elif chunk[5] == "2": 
+			continue
+		elif chunk[5] == "--12":
+			libstring = libstring + os.path.abspath(chunk[0]) + " " + os.path.abspath(chunk[6]) + " "
+		else:
+			backstring = backstring + os.path.abspath(chunk[0]) + " "
 	libstring = libstring + backstring
 
 	champion = select_champion(prepared_libs)
 
-	print ('###############')
+	print (header_print)
 	print ('Params')
-	print ('###############')
+	print (header_print)
 	print (args.window_size)
 	print (true_output+name+".raw.vcf")
 	print (true_output+"redundans_output/scaffolds.filled.fa")
@@ -185,10 +200,10 @@ if __name__ == '__main__':
 	print (champion[-1])
 	print (config_dict['nQuire'][0])
 	print (config_dict["KAT"][0])
-	print (home + "kitchen/"+job_ID+"/")
+	print (path_job_ID)
 	print (true_output)
 	print (counter)
-	print ('###############')
+	print (header_print)
 	
 	###Calling spades_recipee.py to generate the assembly job. In the future it should use config file to select the assembly program to use###
 	karyonjobfile = open(true_output+name+"_karyon.job", 'a')
@@ -196,16 +211,18 @@ if __name__ == '__main__':
 	switch = False
 	if args.no_assembly == False:
 		if args.genome_assembler == "dipspades" or args.genome_assembler == 'dipSPAdes':
-			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], False, ram_limit, n_nodes)
+			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, \
+				config_dict['SPAdes'][1], False, ram_limit, n_nodes)
 			assembly = true_output+"dipspades/consensus_contigs.fasta"
 		elif args.genome_assembler == "spades" or args.genome_assembler == 'SPAdes':
-			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], True, ram_limit, n_nodes)
+			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, \
+				config_dict['SPAdes'][1], True, ram_limit, n_nodes)
 			assembly = true_output+"spades/scaffolds.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
 			if args.no_reduction == True:
-				karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1] + " --noreduction")
+				karyonjobfile.write("python2 " + os.path.join(config_dict['redundans'][0], "redundans.py") + " -o " + os.path.join(true_output, "redundans_output") + " -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1] + " --noreduction")
 			else:
-				karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+				karyonjobfile.write("python2 " + os.path.join(config_dict['redundans'][0], "redundans.py") + " -o " + os.path.join(true_output, "redundans_output") + " -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 			assembly = true_output+"redundans_output/scaffolds.filled.fa"
 			switch = True
 		elif args.genome_assembler == "soapdenovo" or args.genome_assembler == "SOAPdenovo":
@@ -217,24 +234,27 @@ if __name__ == '__main__':
 			pass
 	else:
 		assembly = args.no_assembly
+	
 	if args.no_reduction == False and switch == False:
-		karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+		karyonjobfile.write("python2 "+ os.path.join(config_dict['redundans'][0], "redundans.py") + " -f "+ assembly + " -o " + os.path.join(true_output, "redundans_output") + " -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 		reduced_assembly = true_output+"redundans_output/scaffolds.filled.fa"
 	elif args.no_reduction == False and switch == True:
 		reduced_assembly = assembly
 	else:
 		reduced_assembly = assembly
+
 	karyonjobfile.close()
 
 	#5) Create job files
 	if args.no_varcall == False:
 		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly)
-	os.system ("bash "+true_output+name+"_karyon.job")
+	
+	karyon_job = os.path.join(true_output, "{}_karyon.job".format(name))	
+	os.system ("bash "+karyon_job)
 	#6) Creates a job file that calls all the job files in the proper order
 
 	#7) We create the plots
 	counter = int(args.max_scaf2plot)
-	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
 		for i in no_varcall:
@@ -270,7 +290,7 @@ if __name__ == '__main__':
 				os.path.abspath(champion[-1]), 
 				config_dict['nQuire'][0], 
 				config_dict["KAT"][0], 
-				home + "kitchen/"+job_ID+"/", 
+				path_job_ID, 
 				true_output, 
 				counter, 
 				job_ID, name)
@@ -286,26 +306,26 @@ if __name__ == '__main__':
 			os.path.abspath(champion[-1]), 
 			config_dict['nQuire'][0], 
 			config_dict["KAT"][0], 
-			home + "kitchen/"+job_ID+"/", 
+			path_job_ID, 
 			true_output, 
 			counter, 
 			job_ID, name)	
 
 	###We clean the kitchen###
 	if args.dirty_kitchen == True:
-		existence = open(home + "kitchen/" + job_ID + '/_keep_existing_', 'w')
+		existence = open(keep_existing, 'w')
 		existence.close()
 
 	print ("Now I'm cleaning the kitchen...")
 	if args.dirty_kitchen == True:
 		print ("...but keeping what you told me...")
-	for e in os.listdir(home + "kitchen/"):
-		for i in os.listdir(home + "kitchen/"+e):
-			if '_keep_existing_' in os.listdir(home + "kitchen/"+e): continue
+	for e in os.listdir(path_tmp):
+		for i in os.listdir(os.path.join(path_tmp, e)):
+			if '_keep_existing_' in os.listdir(os.path.join(path_tmp, e)): continue
 			else:
-				os.remove(home + "kitchen/"+e+"/"+i)
-		if '_keep_existing_' in os.listdir(home + "kitchen/"+e): continue
-		else: os.rmdir(home + "kitchen/"+e)
+				os.remove(os.path.join(path_tmp, e, i))
+		if '_keep_existing_' in os.listdir(os.path.join(path_tmp, e)): continue
+		else: os.rmdir(os.path.join(path_tmp, e))
 	if args.dirty_kitchen == True:
 		print ("...now kitchen is how you like it!")
 	else:	

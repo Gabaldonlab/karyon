@@ -101,11 +101,8 @@ BWA_VERSION=0.7.15
 TRIMMOMATIC_VERSION=0.36
 PICARD_VERSION=1.78
 
-
 echo " Creating dependencies folder..."
 mkdir dependencies
-rm -r ../kitchen
-mkdir ../kitchen
 cd dependencies
 
 echo " Installing basic software..."
@@ -150,11 +147,7 @@ cd ..
 echo "Installing KAT"
 conda install kat
 
-#wget https://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O ~/miniconda.sh
-#bash ~/miniconda.sh -b -p $HOME/miniconda
-
 echo "Installing Python packages"
-# pip install --upgrade pip
 python2 -m pip install --upgrade pip
 pip2 install numpy
 pip2 install biopython
@@ -214,7 +207,7 @@ rm ./*.zip.1
 rm ./*.tar.gz
 rm ./*.tgz
 
-dep_folder=/home/dependencies
+dep_folder=$pwd/dependencies
 PATH="$HOME/miniconda/bin:${PATH}"
 PATH="$dep_folder/samtools-1.9/:${PATH}"
 PATH="$dep_folder/bcftools-1.9/:${PATH}"
@@ -222,7 +215,7 @@ PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/2.7/karyon.py"' >> ~/.bashrc
 
 pwd
-python ../../bin/2.7/create_config.py --karyon ../ --redundans ./dependencies/redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picardtools ./dependencies/picard-tools-$PICARD_VERSION --SPADes /dependencies/SPAdes-$SPAdes_VERSION-Linux --nQuire /dependencies/nQuire/ --SOAPdenovo /dependencies/SOAPdenovo2-bin-LINUX-generic-r240 --output ../../bin/configuration.txt
+python ../../bin/2.7/create_config.py --karyon ../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picardtools ./picard-tools-$PICARD_VERSION --SPADes ./SPAdes-$SPAdes_VERSION-Linux --nQuire ./nQuire/ --SOAPdenovo ./SOAPdenovo2-bin-LINUX-generic-r240 --output ../../bin/configuration.txt
 
 cd ..
 chmod -R 777 dependencies

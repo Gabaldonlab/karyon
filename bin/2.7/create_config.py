@@ -63,7 +63,7 @@ if args.picardtools == "":
 else:
 	config_file.write('@'+ os.path.abspath(args.picardtools)+"\n")
 
-config_file.write('+SPADes\n')
+config_file.write('+SPAdes\n')
 if args.SPADes == "":
 	config_file.write('@')
 else:

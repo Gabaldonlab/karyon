@@ -112,12 +112,11 @@ def var_v_cov(vcf, pileup, window_size, output):
 			x.append(snp_density[element])
 			y.append(mean_cov[element])
 	xy = np.vstack([x,y])
-	#z = gaussian_kde(xy)(xy)
 	plt.figure(figsize=(15,10))
 	fig, ax = plt.subplots()
 	x1 = pd.Series(x, name='SNPs in '+str(window_size)+" base pairs")
 	x2 = pd.Series(y, name='Coverage')
-	#ax.scatter(x, y, c=z, s=10, edgecolor='')
+
 	ax = sns.jointplot(x1,x2,kind="kde", height=7, space=0)
 	plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+'.png')
 	plt.xlabel('SNPs in '+str(window_size)+"base pairs")
@@ -321,46 +320,46 @@ def ttest_ploidy(number_list):
 	R2_tetraploidA, R2_tetraploidB  = (stats.ttest_1samp(number_list, math.log(3.0,2),nan_policy='omit')), (stats.ttest_1samp(number_list, math.log(1/3.0,2),nan_policy='omit'))
 	return R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB#, mean_number_list, numpy.nanstd(number_list)
 
-def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kitchen, newpath, counter):
-	window_stats = []
-	prev_record_name = False
-	fasta = SeqIO.parse(fasta_file, "fasta")
-	for record in fasta:
-		if len(os.listdir(newpath+"nQuireplots_ws"+str(window_size))) >= counter: break
-		if record.name != prev_record_name and prev_record_name != False:
-			nQuire_plot(window_stats, window_size, newpath)
-			window_stats = []
-		if prev_record_name == False:
-			prev_record_name = record.name
-		start, end = 0, len(record)
-		log_refalt_list = []
-		while start + step <= end:
-			window = record.name+":"+str(start)+":"+str(start+window_size)
-			VCF = vcf_file.fetch(record.name, start, start + window_size) 
-			mean_refaltcov_list = []
-			for i in VCF:
-				refalt = (str(i).split()[-1].split(':')[1].split(","))
-				snp_pos = int(str(i).split()[1])
-				ref, alt = float(refalt[0]), float(refalt[1])
-				totalcov = numpy.nanmean(bam_file.count_coverage(record.name, snp_pos, snp_pos+1, quality_threshold=0))
-				mean_refaltcov_list.append(totalcov)
-				if alt == 0 or ref == 0:
-					value = float('nan')
-				else:
-					value = alt/(float(ref)+0.01)
-				log_refalt_list.append(math.log(value,2))
+# def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kitchen, newpath, counter):
+# 	window_stats = []
+# 	prev_record_name = False
+# 	fasta = SeqIO.parse(fasta_file, "fasta")
+# 	for record in fasta:
+# 		if len(os.listdir(newpath+"nQuireplots_ws"+str(window_size))) >= counter: break
+# 		if record.name != prev_record_name and prev_record_name != False:
+# 			nQuire_plot(window_stats, window_size, newpath)
+# 			window_stats = []
+# 		if prev_record_name == False:
+# 			prev_record_name = record.name
+# 		start, end = 0, len(record)
+# 		log_refalt_list = []
+# 		while start + step <= end:
+# 			window = record.name+":"+str(start)+":"+str(start+window_size)
+# 			VCF = vcf_file.fetch(record.name, start, start + window_size) 
+# 			mean_refaltcov_list = []
+# 			for i in VCF:
+# 				refalt = (str(i).split()[-1].split(':')[1].split(","))
+# 				snp_pos = int(str(i).split()[1])
+# 				ref, alt = float(refalt[0]), float(refalt[1])
+# 				totalcov = numpy.nanmean(bam_file.count_coverage(record.name, snp_pos, snp_pos+1, quality_threshold=0))
+# 				mean_refaltcov_list.append(totalcov)
+# 				if alt == 0 or ref == 0:
+# 					value = float('nan')
+# 				else:
+# 					value = alt/(float(ref)+0.01)
+# 				log_refalt_list.append(math.log(value,2))
 			
-			BAMtemp = bam_file.fetch(record.name, start, start + window_size)
-			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
+# 			BAMtemp = bam_file.fetch(record.name, start, start + window_size)
+# 			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
 
-			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
-			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
-			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
+# 			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
+# 			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
+# 			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
 
-			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
-			start = start + step
-			vcf_file.seek(0)
-	return window_stats
+# 			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
+# 			start = start + step
+# 			vcf_file.seek(0)
+# 	return window_stats
 
 def nQuire_plot(value_list, window_size, newpath):
 	name, x, y1, y2, y3, std_cov, mean_cov, snp_den = '', [], [], [], [], [], [], []
@@ -436,7 +435,6 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	os.system("tabix -p vcf "+ vcf+".gz")
 	vcf_file = open(vcf, 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
-	kitchen = kitchen+kitchenID
 
 	lendict = {}
 	fastainput = SeqIO.index(fasta_file, "fasta")
@@ -456,7 +454,6 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	fair_coin_scaff(vcf, window_size, counter, newpath)
 	cov_v_len(mpileup, fastainput, newpath)
 	katplot(fasta_file, library, KAT, newpath)
-	# window_walker(window_size, step, VCF, fasta_file, bam, nQuire, kitchen, newpath, counter)
 	
 
 

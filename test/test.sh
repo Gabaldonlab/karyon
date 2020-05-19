@@ -3,11 +3,9 @@
 # Karyon Test .
 # version 0.1a
 ###
-
-current=$(pwd)
-docker stop karyon_test
-docker run -dit --name=karyon_test -v $current:/home/ --rm ubuntu
-docker exec -it -w /home karyon_test sh /home/install.sh
-docker exec -it -w /home karyon_test /bin/bash
-
-echo "Ended!"
+echo "Starting sratoolkit download..."
+wget --output-document sratoolkit.tar.gz http://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz
+tar -vxzf sratoolkit.tar.gz
+./sratoolkit.2.10.6-ubuntu64/bin/vdb-config --interactive
+echo "Starting data download..."
+./sratoolkit.2.10.6-ubuntu64/bin/fastq-dump DRR040667
