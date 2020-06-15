@@ -1,4 +1,5 @@
 # Ignore shared files
+tmp/
 dependencies/
 .git/
 .gitignore

@@ -95,12 +95,15 @@ if __name__ == '__main__':
 	if args.nodes and int(args.nodes) < total_nodes:
 		n_nodes = int(args.nodes)
 
-	if not args.memory_limit:
+	if not args.memory_limit:		
 		ram_limit = int(psutil.virtual_memory()[0]/1000000000 * float(args.memory_fraction))
 		if n_nodes < total_nodes:
 			ram_limit = int(psutil.virtual_memory()[0]/1000000000 * float(args.memory_fraction) * (float(n_nodes)/total_nodes))
+		ram_limit = 8
 	else:
 		ram_limit = args.memory_limit * int(args.memory_fraction)
+
+
 	counter = int(args.max_scaf2plot)
 	
 	###Sets the job ID and the prefix name for the job. If job ID is not user defined, it produces a random 6 character string. If prefix name is not defined, it uses job ID### 
@@ -182,7 +185,7 @@ if __name__ == '__main__':
 		elif chunk[5] == "2": 
 			continue
 		elif chunk[5] == "--12":
-			libstring = libstring + os.path.abspath(chunk[0]) + " " + os.path.abspath(chunk[6]) + " "
+			libstring = libstring + os.path.abspath(chunk[0]) + " "
 		else:
 			backstring = backstring + os.path.abspath(chunk[0]) + " "
 	libstring = libstring + backstring
