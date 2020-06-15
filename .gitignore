@@ -8,4 +8,7 @@ dependencies/
 *.pyc
 *.py~
 /scripts/tmp/
-/test/
+
+# ... but the following
+!/test/download_data_test_single.sh
+!/test/download_data_test_double.sh
