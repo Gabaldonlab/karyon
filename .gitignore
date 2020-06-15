@@ -1,8 +1,11 @@
 # Ignore shared files
+tmp/
 dependencies/
 .git/
 .gitignore
 
 # Ignore temp files
-/bin/*.py.bak
-/dataset/
+*.pyc
+*.py~
+/scripts/tmp/
+/test/
