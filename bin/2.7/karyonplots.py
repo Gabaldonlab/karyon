@@ -321,7 +321,15 @@ def ttest_ploidy(number_list):
 	R2_tetraploidA, R2_tetraploidB  = (stats.ttest_1samp(number_list, math.log(3.0,2),nan_policy='omit')), (stats.ttest_1samp(number_list, math.log(1/3.0,2),nan_policy='omit'))
 	return R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB#, mean_number_list, numpy.nanstd(number_list)
 
-def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kitchen, newpath, counter):
+def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter):
+	vcf_file = pysam.VariantFile(vcf, 'r')
+	bam_file = pysam.AlignmentFile(bam, 'rb')
+	vcfset = set()
+	if newpath.find("/") > -1:
+		originalpath=os.getcwd()
+	if os.path.isdir(newpath+"nQuireplots_ws"+str(window_size)):
+		os.rmdir(newpath+"nQuireplots_ws"+str(window_size))
+	os.makedirs(newpath+"nQuireplots_ws"+str(window_size))
 	window_stats = []
 	prev_record_name = False
 	fasta = SeqIO.parse(fasta_file, "fasta")
@@ -354,7 +362,7 @@ def window_walker(window_size, step, vcf_file, fasta_file, bam_file, nQuire, kit
 			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
 
 			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
-			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
+			diplo_score, triplo_score, tetra_score = launch_nQuire(pysam.AlignmentFile(kitchen+"BAMtemp.bam"), nQuire, kitchen)
 			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
 
 			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
@@ -443,11 +451,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
 	step = window_size/2
-	#VCF = pysam.VariantFile(vcf+".gz", 'r')
-	if newpath.find("/") > -1:
-		originalpath=os.getcwd()
-	os.makedirs(newpath+"nQuireplots_ws"+str(window_size))
-	
+	VCF = pysam.VariantFile(vcf+".gz", 'r')
 	scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
 	scaffold_len_log(fasta_file, window_size, fastainput, newpath)
 	var_v_cov(vcf, mpileup, window_size, newpath)
