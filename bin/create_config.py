@@ -42,7 +42,7 @@ config_file.write('+GATK\n')
 if args.GATK == "":
 	config_file.write('@'+"gatk"+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.GATK)+"gatk"+"\n")
+	config_file.write('@'+ os.path.abspath(args.GATK)+"/gatk"+"\n")
 	
 
 config_file.write('+samtools\n')
@@ -74,13 +74,13 @@ config_file.write('+KAT\n')
 if args.KAT == "":
 	config_file.write('@kat\n')
 else:
-	config_file.write('@'+ os.path.abspath(args.KAT)+"kat\n")
+	config_file.write('@'+ os.path.abspath(args.KAT)+"/kat\n")
 
 config_file.write('+nQuire\n')
 if args.nQuire == "":
 	config_file.write('@'+"nQuire\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.nQuire)+"nQuire\n")
+	config_file.write('@'+ os.path.abspath(args.nQuire)+"/nQuire\n")
 
 config_file.write('+SOAPdeNovo\n')
 if args.SOAPdenovo == "":

@@ -36,7 +36,7 @@ for cmd in echo awk git wget unzip tar nano gcc g++ make cd ln date ldconfig unz
     if ! exists $cmd; then
         case $cmd in        
             "pip")
-                echo "Install pip first (ie. 'sudo apt-get install python-pip2')!"  
+                echo "Install pip first (ie. 'sudo apt-get install python3-pip')!"  
                 ;;
             *)
                 echo "Install $cmd first (ie. 'sudo apt-get install $cmd')!"
@@ -148,19 +148,19 @@ echo "Installing KAT"
 conda install kat
 
 echo "Installing Python packages"
+python3 -m pip install --upgrade pip
+pip3 install numpy
+pip3 install biopython
+pip3 install psutil
+pip3 install pysam
+python3 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
+
 python2 -m pip install --upgrade pip
 pip2 install numpy
 pip2 install biopython
 pip2 install psutil
 pip2 install pysam
 python2 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
-
-python -m pip install --upgrade pip
-pip install numpy
-pip install biopython
-pip install psutil
-pip install pysam
-python -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
 
 echo "Installing Samtools, Bcftools and Htslib..."
 apt-get update
@@ -215,7 +215,7 @@ PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/karyon.py"' >> ~/.bashrc
 
 pwd
-python ../../bin/create_config.py --karyon ../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picardtools ./picard-tools-$PICARD_VERSION --SPADes ./SPAdes-$SPAdes_VERSION-Linux --nQuire ./nQuire/ --SOAPdenovo ./SOAPdenovo2-bin-LINUX-generic-r240 --output ../../bin/configuration.txt
+python3 ../../bin/create_config.py --karyon ../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/:${PATH}" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/:${PATH}" --bcftools "$dep_folder/bcftools-1.9/:${PATH}" --picardtools ./picard-tools-$PICARD_VERSION --SPADes ./SPAdes-$SPAdes_VERSION-Linux --nQuire ./nQuire/ --SOAPdenovo ./SOAPdenovo2-bin-LINUX-generic-r240 --output ../../bin/configuration.txt
 
 cd ..
 chmod -R 777 dependencies
