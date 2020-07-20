@@ -88,7 +88,7 @@ def soap_recipee(report, name, output, flags, job, loc):
 		#os.remove(args.output+"/"+args.name+".soapdenovo.sh")
 	bash_job = job
 	pairs = ''
-	print loc, "tomato"
+	print (loc, "tomato")
 	bash_job.write(loc+" all -s "+output+"/"+name+".soapdenovo_config.txt " + flags + " -o "+ locspp + " -p 12\n\n")
 	#Now we make a "job file" that calls the sh file. This is the job to send to the cluster
 	#job_file = open(output+"/"+name+".job", 'w') 

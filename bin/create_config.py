@@ -9,10 +9,11 @@ if __name__ == '__main__':
 	parser.add_argument('--samtools', default='')
 	parser.add_argument('--bcftools', default='')
 	parser.add_argument('--picardtools', default='')
-	parser.add_argument('--SPADes', default='')
+	parser.add_argument('--SPAdes', default='')
 	parser.add_argument('--KAT', default='')
 	parser.add_argument('--nQuire', default='')
 	parser.add_argument('--SOAPdenovo', default='')
+	parser.add_argument('--trimmomatic', default='')
 	parser.add_argument('-o', '--output')
 	args = parser.parse_args()
 	
@@ -25,19 +26,19 @@ config_file.write('+karyon\n')
 if args.karyon == "":
 	config_file.write('@'+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.karyon)+"\n")
+	config_file.write('@'+ os.path.abspath(args.karyon)+"/\n")
 
 config_file.write('+redundans\n')
 if args.redundans == "":
 	config_file.write('@'+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.redundans)+"\n")
+	config_file.write('@'+ os.path.abspath(args.redundans)+"/\n")
 
 config_file.write('+BWA\n'+"\n")
 if args.BWA == "":
 	config_file.write('@'+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.BWA)+"\n")
+	config_file.write('@'+ os.path.abspath(args.BWA)+"/\n")
 
 config_file.write('+GATK\n')
 if args.GATK == "":
@@ -45,37 +46,36 @@ if args.GATK == "":
 else:
 	config_file.write('@'+ os.path.abspath(args.GATK)+"/gatk"+"\n")
 	
-
 config_file.write('+samtools\n')
 if args.samtools == "":
-	config_file.write('@'+ os.path.abspath(args.samtools)+"\n")
-else:
 	config_file.write('@'+"\n")
+else:
+	config_file.write('@'+ os.path.abspath(args.samtools)+"/\n")
 
 config_file.write('+bcftools\n')
 if args.bcftools == "":
 	config_file.write('@'+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.bcftools)+"\n")
+	config_file.write('@'+ os.path.abspath(args.bcftools)+"/\n")
 	
 config_file.write('+picard-tools\n')
 if args.picardtools == "":
 	config_file.write('@'+"\n")
 else:
-	config_file.write('@'+ os.path.abspath(args.picardtools)+"\n")
+	config_file.write('@'+ os.path.abspath(args.picardtools)+"/\n")
 
-config_file.write('+SPADes\n')
-if args.SPADes == "":
+config_file.write('+SPAdes\n')
+if args.SPAdes == "":
 	config_file.write('@')
 else:
-	config_file.write('@'+ os.path.abspath(args.SPADes)+"\n")
+	config_file.write('@'+ os.path.abspath(args.SPAdes)+"/\n")
 config_file.write('>--only_assembler\n')
 
 config_file.write('+KAT\n')
 if args.KAT == "":
-	config_file.write('@kat\n')
+	config_file.write('@\n')
 else:
-	config_file.write('@'+ os.path.abspath(args.KAT)+"/kat\n")
+	config_file.write('@'+ os.path.abspath(args.KAT)+"\n")
 
 config_file.write('+nQuire\n')
 if args.nQuire == "":
@@ -87,7 +87,13 @@ config_file.write('+SOAPdeNovo\n')
 if args.SOAPdenovo == "":
 	config_file.write('@\n')
 else:
-	config_file.write('@'+ os.path.abspath(args.SOAPdenovo)+'\n')
+	config_file.write('@'+ os.path.abspath(args.SOAPdenovo)+'/\n')
+
+config_file.write('+trimmomatic\n')
+if args.trimmomatic == "":
+	config_file.write('@\n')
+else:
+	config_file.write('@'+ os.path.abspath(args.trimmomatic)+'/\n')
 
 
 config_file.close()

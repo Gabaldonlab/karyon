@@ -118,6 +118,7 @@ if __name__ == '__main__':
 
 	config_dict = parse_config(config_path)
 	home = config_dict["karyon"][0]
+	if home[-1] != "/": home = home + "/"
 	prepared_libs = home + "tmp/" + job_ID + "/prepared_libraries.txt"
 
 	###Checks that the output is not a file. If it does not exist, it creates it.###
@@ -203,9 +204,9 @@ if __name__ == '__main__':
 			assembly = true_output+"spades/scaffolds.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
 			if args.no_reduction == True:
-				karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1] + " --noreduction")
+				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1] + " --noreduction")
 			else:
-				karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 			assembly = true_output+"redundans_output/scaffolds.filled.fa"
 			switch = True
 		elif args.genome_assembler == "soapdenovo" or args.genome_assembler == "SOAPdenovo":
@@ -218,7 +219,7 @@ if __name__ == '__main__':
 	else:
 		assembly = args.no_assembly
 	if args.no_reduction == False and switch == False:
-		karyonjobfile.write("python2 "+config_dict['Redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["Redundans"][1])
+		karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 		reduced_assembly = true_output+"redundans_output/scaffolds.filled.fa"
 	elif args.no_reduction == False and switch == True:
 		reduced_assembly = assembly

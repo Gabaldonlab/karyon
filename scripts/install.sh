@@ -114,6 +114,27 @@ echo " Installing basic software..."
 apt-get install -y software-properties-common
 apt-get install -y build-essential
 
+echo "Installing Bioconda"
+
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+bash ~/miniconda.sh -b -p ~/miniconda 
+rm ~/miniconda.sh
+export PATH=~/miniconda/bin:$PATH
+conda config --add channels defaults
+conda config --add channels bioconda
+conda config --add channels conda-forge
+
+echo "Installing Python packages"
+python3 -m pip install --upgrade pip
+pip3 install numpy
+conda install -y biopython seaborn
+pip3 install psutil
+pip3 install pysam
+python3 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
+
+echo "Installing KAT"
+conda install -y kat
+
 echo " Installing Java..."
 add-apt-repository -y ppa:webupd8team/java
 apt-get update
@@ -149,20 +170,6 @@ make submodules
 make
 cd ..
 
-echo "Installing anaconda_ete"
-conda install kat
-#wget https://repo.continuum.io/miniconda/Miniconda3-3.7.0-Linux-x86_64.sh -O ~/miniconda.sh
-#bash ~/miniconda.sh -b -p $HOME/miniconda
-
-echo "Installing Python packages"
-# pip install --upgrade pip
-python3 -m pip install --upgrade pip
-pip3 install numpy
-pip3 install biopython
-pip3 install psutil
-pip3 install pysam
-python3 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
-
 echo "Installing Samtools, Bcftools and Htslib..."
 apt-get update
 apt-get install -y libbz2-dev
@@ -190,8 +197,6 @@ cd bcftools-1.9
 make
 cd ..
 
-
-
 echo "Installing BWA"
 wget https://github.com/lh3/bwa/releases/download/v0.7.15/bwa-0.7.15.tar.bz2
 tar -vxjf bwa-0.7.15.tar.bz2
@@ -211,12 +216,16 @@ rm ./*.zip.1
 rm ./*.tar.gz
 rm ./*.tgz
 
-dep_folder=/home/dependencies
+cd ..
+chmod -R 777 dependencies
+cd dependencies
+
+dep_folder=`pwd`
 PATH="$HOME/miniconda/bin:${PATH}"
 PATH="$dep_folder/samtools-1.9/:${PATH}"
 PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
-echo 'alias karyon="python $(pwd)/bin/2.7/karyon.py"' >> ~/.bashrc
+echo 'alias karyon="python $(pwd)/bin/karyon.py"' >> ~/.bashrc
 
 cd ..
 chmod -R 777 dependencies
@@ -224,6 +233,8 @@ cd dependencies
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
+
+python3 ../../bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output ../../configuration.txt
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
