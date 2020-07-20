@@ -125,6 +125,7 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 
 echo "Installing Python packages"
+apt-get install python
 python3 -m pip install --upgrade pip
 pip3 install numpy
 conda install -y biopython seaborn

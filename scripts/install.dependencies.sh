@@ -6,6 +6,7 @@
 
 echo -n "Installing dependencies...\n"
 apt-get update
+apt-get install -y python
 apt-get install -y git
 apt-get install -y wget
 apt-get install -y unzip
