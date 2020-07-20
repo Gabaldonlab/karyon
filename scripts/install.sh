@@ -106,8 +106,6 @@ PICARD_VERSION=1.78
 
 echo " Creating dependencies folder..."
 mkdir dependencies
-rm -r ../kitchen
-mkdir ../kitchen
 cd dependencies
 
 echo " Installing basic software..."
@@ -115,7 +113,6 @@ apt-get install -y software-properties-common
 apt-get install -y build-essential
 
 echo "Installing Bioconda"
-
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda 
 rm ~/miniconda.sh
@@ -125,13 +122,7 @@ conda config --add channels bioconda
 conda config --add channels conda-forge
 
 echo "Installing Python packages"
-apt-get install python
-python3 -m pip install --upgrade pip
-pip3 install numpy
-conda install -y biopython seaborn
-pip3 install psutil
-pip3 install pysam
-python3 -m pip install --user matplotlib ipython jupyter pandas sympy nose seaborn
+conda install -y biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 echo "Installing KAT"
 conda install -y kat
@@ -228,9 +219,6 @@ PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 echo 'alias karyon="python $(pwd)/bin/karyon.py"' >> ~/.bashrc
 
-cd ..
-chmod -R 777 dependencies
-cd dependencies
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
