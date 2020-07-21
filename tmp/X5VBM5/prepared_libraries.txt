@@ -1,0 +1,4 @@
+/mnt/Bulk/C_metapsilosis_SRA/SRR10335768_1.fastq	101	0.0	5882510916	33	1	/mnt/Bulk/C_metapsilosis_SRA/SRR10335768_2.fastq	fastq	no-compression
+/mnt/Bulk/C_metapsilosis_SRA/SRR10335768_2.fastq	101	0.0	5882510916	33	2	/mnt/Bulk/C_metapsilosis_SRA/SRR10335768_1.fastq	fastq	no-compression
+/mnt/Bulk/C_metapsilosis_SRA/SRR10335770_1.fastq	101	0.0	6170277348	33	1	/mnt/Bulk/C_metapsilosis_SRA/SRR10335770_2.fastq	fastq	no-compression
+/mnt/Bulk/C_metapsilosis_SRA/SRR10335770_2.fastq	101	0.0	6170277348	33	2	/mnt/Bulk/C_metapsilosis_SRA/SRR10335770_1.fastq	fastq	no-compression

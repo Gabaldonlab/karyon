@@ -4,16 +4,6 @@ import argparse
 from Bio import SeqIO
 import gzip, bz2, tarfile
 
-'''
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-l', '--libraries', required=True, nargs='+', help="Fastq libraries to use for assembly and variant calling. Unsuitable libraries for any of the steps will be ignored")
-    parser.add_argument('-s', '--sample_size', default=10000, help="Number of reads to analyze to stimate insert size for each library")
-    parser.add_argument('-r', '--reverse', default=False, action='store_true', help='Converts phred33 libraries to phred64. Default is phred64 -> phred33')
-    parser.add_argument('-o', '--output_report', required=True, help='The script will prepare a report for all the input libraries that will be used by other scripts to adjust automatically their parameters')
-
-args = parser.parse_args()'''
-
 def remove_false_files(filelist): #We remove empty files that otherwise would make everything crash
 	clean_list = []
 	for i in filelist: 
@@ -144,7 +134,7 @@ def type_parse(fastq, hypo_dict, mean_read_dict):
 		if i in hypo_dict:
 			type_dict[i] = [1, hypo_dict[i]]
 			type_dict[hypo_dict[i]] = [2, i]
-		elif mean_read_dict[i] > 1500:
+		elif int(mean_read_dict[i][0]) > 1500:
 			type_dict[i] = ["pb", "no_partner"]
 		else: type_dict[i] = ["s", "no_partner"]
 	for i in fastq:

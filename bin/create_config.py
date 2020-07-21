@@ -69,7 +69,6 @@ if args.SPAdes == "":
 	config_file.write('@')
 else:
 	config_file.write('@'+ os.path.abspath(args.SPAdes)+"/\n")
-config_file.write('>--only_assembler\n')
 
 config_file.write('+KAT\n')
 if args.KAT == "":

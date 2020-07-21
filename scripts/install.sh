@@ -18,6 +18,8 @@ echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
 echo "Installation will take 5-10 minutes. "
 echo ""
 
+mkdir ../tmp
+
 # sleep
 echo "I'll proceed with installation in 2 seconds... Press Ctrl-C to cancel."
 sleep 2s
