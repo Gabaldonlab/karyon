@@ -141,7 +141,7 @@ if __name__ == '__main__':
 	print ('###############')
 	libs = ''
 	for i in args.libraries:
-		libs = libs + " " + os.abspath(i)
+		libs = libs + " " + os.path.abspath(i)
 	preparation(libs.split(), 10000, prepared_libs)
 
 	libs_parsed = ''

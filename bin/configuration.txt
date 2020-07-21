@@ -11,7 +11,7 @@
 #If you want to use other parameters we recommend you to copy this file in other location and modify as you please. Naturally, we cannot promise you that the whole thing will work if you use a modified version of the configuration file, so try to be sure of any change you make
 
 +karyon
-@/home/mnaranjo/users/tg/mnaranjo/scripts_and_stuff/karyon_docker/src/
+@/home/mnaranjo/Documents/karyon
 
 +SOAPdeNovo
 @/home/mnaranjo/users/tg/lpryszcz/src/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
