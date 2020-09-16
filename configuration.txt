@@ -12,27 +12,27 @@
 
 
 +karyon
-@/home/mnaranjo/Documents/karyon/
+@/root/src/
 +redundans
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/redundans/
+@/root/src/karyon/dependencies/redundans/
 +BWA
 
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/bwa-0.7.15/
+@/root/src/karyon/dependencies/bwa-0.7.15/
 +GATK
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/gatk-4.0.12.0/gatk
+@/root/src/karyon/dependencies/gatk-4.0.12.0/gatk
 +samtools
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/samtools-1.9/
+@/root/src/karyon/dependencies/samtools-1.9/
 +bcftools
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/bcftools-1.9/
+@/root/src/karyon/dependencies/bcftools-1.9/
 +picard-tools
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/picard-tools-1.78/
+@/root/src/karyon/dependencies/picard-tools-1.78/
 +SPAdes
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/SPAdes-3.9.0-Linux/
+@/root/src/karyon/dependencies/SPAdes-3.9.0-Linux/
 +KAT
 @
 +nQuire
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/nQuire/nQuire
+@/root/src/karyon/dependencies/nQuire/nQuire
 +SOAPdeNovo
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/
+@/root/src/karyon/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/
 +trimmomatic
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/Trimmomatic-0.36/
+@/root/src/karyon/dependencies/Trimmomatic-0.36/

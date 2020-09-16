@@ -92,6 +92,7 @@ echo " Everything looks good :) Let's proceed..."
 sleep 2s
 
 pwd=`pwd`
+init_path="$(pwd)";
 
 '''
 Dependencies versions
@@ -118,7 +119,12 @@ echo "Installing Bioconda"
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda 
 rm ~/miniconda.sh
-export PATH=~/miniconda/bin:$PATH
+
+echo "Bioconda OK"
+sleep 2s
+export PATH="$PATH:/root/miniconda/bin"
+echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
+source ~/.bashrc
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
@@ -128,6 +134,8 @@ conda install -y biopython matplotlib ipython jupyter pandas sympy nose seaborn 
 
 echo "Installing KAT"
 conda install -y kat
+echo 'alias kat="/root/miniconda/bin/kat"' >> ~/.bashrc
+source ~/.bashrc
 
 echo " Installing Java..."
 add-apt-repository -y ppa:webupd8team/java
@@ -225,7 +233,7 @@ echo 'alias karyon="python $(pwd)/bin/karyon.py"' >> ~/.bashrc
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python3 ../../bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output ../../configuration.txt
+python $init_path/bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output $init_path/configuration.txt
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"

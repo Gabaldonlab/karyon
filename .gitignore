@@ -1,4 +1,13 @@
 # Ignore shared files
 dependencies/
+input/
+test/
+test_result/
+tmp/
+
+
+
+# Ignore these files
 .git/
 .gitignore
+

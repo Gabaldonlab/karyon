@@ -433,6 +433,7 @@ def katplot(fasta, library, KAT, out):
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)
+	print (cmd)
 	print ('###############')
 
 

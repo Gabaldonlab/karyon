@@ -54,8 +54,13 @@ def select_champion(fastq):
 		champion = [0,args.favourite]
 	return champion
 
+def exit_program(message):	
+	sys.stderr.write("\n%s\n\n"%message)
+	sys.exit(1)
 
-if __name__ == '__main__':	
+
+def main():
+    
 	parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
 	parser.add_argument('-d', '--output_directory', required=True, help='Directory where all the output files will be generated. Required.')
 	parser.add_argument('-o', '--output_name', default=False, help='Prefix name for all the output files. If omitted, it will generate a random string. This random string will be the same as the identifier for intermediate files.')
@@ -76,8 +81,6 @@ if __name__ == '__main__':
 	parser.add_argument('-m', '--memory_limit', default=False, help='Memory limit for all the programs set in Gb. By default it will try to use all memory available.')
 	parser.add_argument('-M', '--memory_fraction', default=1, help='Proportion of total memory to use by all programs. By default it will use all available memory (default=1), but it may be useful to reduce the percent to avoid freezing other tasks of the computer during peaks.')
 	parser.add_argument('-n', '--nodes', default=False, help='Number of computation nodes to use. If set a number higher than total, it will use total. If set a number lower than total, it will calculate memory usage based on the fraction of nodes set with respect to total existing nodes.')
-
-
 	args = parser.parse_args()
 
 	###Defines the location of configuration.txt if setting by default###
@@ -120,20 +123,29 @@ if __name__ == '__main__':
 	home = config_dict["karyon"][0]
 	if home[-1] != "/": home = home + "/"
 	prepared_libs = home + "tmp/" + job_ID + "/prepared_libraries.txt"
+	
+	path_tmp_jobid = os.path.join(home, "tmp", job_ID)
+	if not os.path.exists(os.path.join(home, "tmp")):
+		os.mkdir(os.path.join(home, "tmp"))
+	prepared_libs = os.path.join(path_tmp_jobid, "prepared_libraries.txt")
 
 	###Checks that the output is not a file. If it does not exist, it creates it.###
 	if not os.path.isdir(args.output_directory):
 		if os.path.isfile == True: 
 			message = "Path is a file" #Should raise an exception an exit the program
-			sys.stderr.write("\n%s\n\n"%message)
-			sys.exit(1)
+			exit_program(message)
 		else:
 			os.mkdir(args.output_directory)
-	elif args.try_again == True: pass
-	else:
-		# os.rmdir(args.output_directory)
+	elif args.try_again == False:
+		os.rmdir(args.output_directory)
 		os.mkdir(args.output_directory)
-	os.system("mkdir "+ home + "tmp/"+job_ID)
+	
+	os.mkdir(path_tmp_jobid)
+
+
+	from karyonplots import katplot, allplots
+	katplot("", "", config_dict["KAT"][0], "")
+
 
 	###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
 	print ('###############')
@@ -313,4 +325,14 @@ if __name__ == '__main__':
 		print ("... removed tmp files!")
 
 
+if __name__ == '__main__':	
+
+	t0  = datetime.now()
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.stderr.write("\n Ctrl-C pressed!      \n")
+    dt  = datetime.now()-t0
+    sys.stderr.write("#Time elapsed: %s\n" % dt)
+    
 
