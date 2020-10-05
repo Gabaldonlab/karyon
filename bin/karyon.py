@@ -325,13 +325,12 @@ def main():
 		print ("... removed tmp files!")
 
 
-if __name__ == '__main__':	
+if __name__ == '__main__':
 	t0  = datetime.now()
 	try:
-        	main()
+		main()
 	except KeyboardInterrupt:
-        	sys.stderr.write("\n Ctrl-C pressed!      \n")
+		sys.stderr.write("\n Ctrl-C pressed!      \n")
 	dt  = datetime.now()-t0
 	sys.stderr.write("#Time elapsed: %s\n" % dt)
-
 
