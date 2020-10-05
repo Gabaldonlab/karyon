@@ -227,13 +227,13 @@ PATH="$HOME/miniconda/bin:${PATH}"
 PATH="$dep_folder/samtools-1.9/:${PATH}"
 PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
-echo 'alias karyon="python $(pwd)/bin/karyon.py"' >> ~/.bashrc
+echo 'alias karyon="python3 $(pwd)/bin/karyon.py"' >> ~/.bashrc
 
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python $init_path/bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output $init_path/configuration.txt
+python3 $init_path/bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output $init_path/configuration.txt
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
