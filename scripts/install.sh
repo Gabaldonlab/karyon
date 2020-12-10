@@ -130,7 +130,16 @@ echo "Bioconda OK"
 sleep 2s
 
 echo "Installing Python packages"
-conda install -y biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
+conda install -y biopython 
+conda install -y matplotlib 
+conda install -y ipython
+conda install -y jupyter
+conda install -y pandas
+conda install -y sympy
+conda install -y nose
+conda install -y seaborn
+conda install -y psutil
+conda install -y pysam
 conda install -c -y bioconda sra-tools
 pip3 install  biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
