@@ -106,7 +106,6 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, r
 		bash_job.write("python2 " + loc +"/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+" -B "+config_dict["BWA"][0] + " -S "+config_dict["samtools"][0]+"\n\n")	
 	if parse_dict[champion[1]][4] == 's':
 		bash_job.write("python2 " + loc + "/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp+" -B "+config_dict["BWA"][0] + " -S "+config_dict["samtools"][0]+"\n\n")
-	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp2+'.sorted.bam\nsamtools faidx '+locspp+'.fasta\n\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp+'.sorted.bam\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
 	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')

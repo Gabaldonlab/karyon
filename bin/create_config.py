@@ -86,7 +86,7 @@ config_file.write('+SOAPdeNovo\n')
 if args.SOAPdenovo == "":
 	config_file.write('@\n')
 else:
-	config_file.write('@'+ os.path.abspath(args.SOAPdenovo)+'/\n')
+	config_file.write('@'+ os.path.abspath(args.SOAPdenovo)+'/SOAPdenovo-127mer\n')
 
 config_file.write('+trimmomatic\n')
 if args.trimmomatic == "":

@@ -18,6 +18,7 @@ echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
 echo "Installation will take 5-10 minutes. "
 echo ""
 
+SELF="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 mkdir ../tmp
 
 # sleep
@@ -97,7 +98,7 @@ init_path="$(pwd)";
 '''
 Dependencies versions
 '''
-GATK_VERSION=4.0.12.0
+GATK_VERSION=4.1.9.0
 SPAdes_VERSION=3.9.0
 HTSLIB_VERSION=1.9
 SAMTOOLS_VERSION=1.9
@@ -109,7 +110,7 @@ PICARD_VERSION=1.78
 
 echo " Creating dependencies folder..."
 mkdir dependencies
-cd dependencies
+cd $SELF/dependencies
 
 echo " Installing basic software..."
 apt-get install -y software-properties-common
@@ -119,18 +120,19 @@ echo "Installing Bioconda"
 wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
 bash ~/miniconda.sh -b -p ~/miniconda 
 rm ~/miniconda.sh
-
-echo "Bioconda OK"
-sleep 2s
 export PATH="$PATH:/root/miniconda/bin"
 echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
 source ~/.bashrc
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
+echo "Bioconda OK"
+sleep 2s
 
 echo "Installing Python packages"
 conda install -y biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
+conda install -c -y bioconda sra-tools
+pip3 install  biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 echo "Installing KAT"
 conda install -y kat
@@ -233,7 +235,7 @@ echo 'alias karyon="python3 $(pwd)/bin/karyon.py"' >> ~/.bashrc
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python3 $init_path/bin/create_config.py --karyon ../../ --redundans ./redundans/ --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output $init_path/configuration.txt
+python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --redundans "$SELF/dependencies/redundans/" --BWA "$dep_folder/bwa-0.7.15/" --GATK gatk-$GATK_VERSION --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output "$SELF/../configuration.txt"
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
