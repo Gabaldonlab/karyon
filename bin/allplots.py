@@ -29,7 +29,7 @@ if __name__ == '__main__':
 	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
 	parser.add_argument('-l', '--library', required=True, help="Illumina library used for the KAT plot")
 	parser.add_argument('--configuration', default=False, help="Configuration file. By default will use ./configuration.txt as the configuration file.")
-	parser.add_argument('-w', '--wsize', required=True, help="Window size for plotting")
+	parser.add_argument('-w', '--wsize', default=1000, help="Window size for plotting")
 	parser.add_argument('-c', '--counter', default=20, help="Number of scaffolds to analyze")
 	parser.add_argument('-s', '--scafsize', default=False, help="Will ignore scaffolds with length below the given threshold")
 	parser.add_argument('-S', '--scafmaxsize', default=False, help="Will ignore scaffolds with length above the given threshold")
