@@ -292,7 +292,7 @@ def main():
 				home + "tmp/"+job_ID+"/", 
 				true_output, 
 				counter, 
-				job_ID, name)
+				job_ID, name, args.scafminsize, args.scafmaxsize)
 		else:
 			from karyonplots import katplot, allplots
 			katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)

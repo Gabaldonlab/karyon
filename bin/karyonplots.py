@@ -413,12 +413,14 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 				mean_cov.append(i[-3])
 				snp_den.append(i[-2])
 				for e in i[-1]:
-				pos_list.append(i[1])
-				all_refalt_list.append(e)
+					pos_list.append(i[1])
+					all_refalt_list.append(e)
 
 	if len(x) > 0:
-		if scafminsize != False and lendict[name] <= scafminsize: continue
-		elif scafmaxsize != False and if lendict[name] >= scafminsize: continue
+		if scafminsize != False and lendict[name] <= scafminsize:
+			pass
+		elif scafmaxsize != False and lendict[name] >= scafminsize:
+			pass
 		else:
 			sns.set(style="darkgrid")
 		
