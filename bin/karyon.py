@@ -16,6 +16,9 @@ from trimming_libraries import trimming
 from varcall_recipee import var_call
 from datetime import datetime
 
+from karyonplots import katplot, allplots
+from soap_recipee import soap_recipee
+
 parser = argparse.ArgumentParser(description=desc, epilog=epilog, formatter_class=argparse.RawTextHelpFormatter)
 parser.add_argument('-d', '--output_directory', required=True, help='Directory where all the output files will be generated. Required.')
 parser.add_argument('-o', '--output_name', default=False, help='Prefix name for all the output files. If omitted, it will generate a random string. This random string will be the same as the identifier for intermediate files.')
@@ -80,24 +83,12 @@ def select_champion(fastq):
 		champion = [0,args.favourite]
 	return champion
 
-def exit_program(message):	
+def exit_program(message):
 	sys.stderr.write("\n%s\n\n"%message)
 	sys.exit(1)
 
 
-def main():
-    
-
-	###Defines the location of configuration.txt if setting by default###
-	config_path = args.configuration
-	if not args.configuration:
-		selfpath = os.path.dirname(os.path.realpath(sys.argv[0]))
-		config_path = selfpath[:selfpath.rfind('/')]
-		config_path = selfpath[:selfpath.rfind('/')]+"/configuration.txt"
-	
-	true_output = os.path.abspath(args.output_directory)
-	if true_output[-1] != "/":
-		true_output=true_output+"/"
+def set_ram():
 
 	###Sets RAM usage options###
 	total_nodes = n_nodes = psutil.cpu_count()
@@ -111,11 +102,16 @@ def main():
 	else:
 		ram_limit = args.memory_limit * int(args.memory_fraction)
 	counter = int(args.max_scaf2plot)
-	
+	return counter, ram_limit, n_nodes
+
+def set_job():
 	###Sets the job ID and the prefix name for the job. If job ID is not user defined, it produces a random 6 character string. If prefix name is not defined, it uses job ID### 
 	job_ID = args.job_id if args.job_id else id_generator()
 	name = args.output_name if args.output_name else job_ID
 
+	return job_ID, name
+
+def print_config(config_path, ram_limit, n_nodes, job_ID, name):
 	print ('###############')
 	print ('Config. path: '+str(config_path))
 	print ("RAM Limit: "+str(ram_limit)+"Gb")
@@ -124,16 +120,18 @@ def main():
 	print ("Job name: "+str(name))
 	print ('###############')
 
+def prepare_config(config_path, job_ID):
 	config_dict = parse_config(config_path)
 	home = config_dict["karyon"][0]
-	if home[-1] != "/": home = home + "/"
-	prepared_libs = home + "tmp/" + job_ID + "/prepared_libraries.txt"
-	
+	if home[-1] != "/": 
+		home = home + "/"
+
 	path_tmp_jobid = os.path.join(home, "tmp", job_ID)
 	if not os.path.exists(os.path.join(home, "tmp")):
 		os.mkdir(os.path.join(home, "tmp"))
-	prepared_libs = os.path.join(path_tmp_jobid, "prepared_libraries.txt")
+	return os.path.join(path_tmp_jobid, "prepared_libraries.txt"), config_dict, home, path_tmp_jobid
 
+def check_job_paths(path_tmp_jobid):
 	###Checks that the output is not a file. If it does not exist, it creates it.###
 	if not os.path.isdir(args.output_directory):
 		if os.path.isfile == True: 
@@ -147,10 +145,7 @@ def main():
 	
 	os.mkdir(path_tmp_jobid)
 
-
-	from karyonplots import katplot, allplots
-	katplot("", "", config_dict["KAT"][0], "")
-
+def prepare_libraries(config_dict, prepared_libs, home, job_ID, true_output):
 
 	###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
 	print ('###############')
@@ -160,6 +155,8 @@ def main():
 	for i in args.libraries:
 		libs = libs + " " + os.path.abspath(i)
 	preparation(libs.split(), 10000, prepared_libs)
+	
+	trim_job = os.path.join(home, "tmp", job_ID, "trimmomatic.job")
 
 	libs_parsed = ''
 	if not args.no_trimming:
@@ -171,7 +168,7 @@ def main():
 			trimmo_commands = ''
 		else:
 			trimmo_commands = " -c " + config_dict['trimmomatic'][1]
-		trimming(prepared_libs, config_dict["trimmomatic"][0], trimmo_commands, home + "tmp/"+job_ID+"/trimmomatic.job", true_output, False)
+		trimming(prepared_libs, config_dict["trimmomatic"][0], trimmo_commands, trim_job, true_output, False)
 		os.system("bash " + home + "tmp/"+job_ID+"/trimmomatic.job")
 	
 		for i in os.listdir(args.output_directory):
@@ -191,95 +188,121 @@ def main():
 	libstring = libstring + backstring
 
 	champion = select_champion(prepared_libs)
+	return champion, libstring
 
+def print_params(true_output, name, champion, config_dict, counter, home, job_ID):
 	print ('###############')
 	print ('Params')
 	print ('###############')
 	print (args.window_size)
-	print (true_output+name+".raw.vcf")
-	print (true_output+"redundans_output/scaffolds.filled.fa")
-	print (true_output+name+".sorted.bam")
-	print (true_output+name+".mpileup")
+	print (os.path.join(true_output, "{}.raw.vcf".format(name)))
+	print (os.path.join(true_output, "redundans_output", "scaffolds.filled.fa"))
+	print (os.path.join(true_output, "{}.sorted.bam".format(name)))
+	print (os.path.join(true_output, "{}.mpileup".format(name)))
 	print (champion[-1])
 	print (config_dict['nQuire'][0])
 	print (config_dict["KAT"][0])
-	print (home + "tmp/"+job_ID+"/")
+	print (os.path.join(home, "tmp", job_ID))
 	print (true_output)
 	print (counter)
 	print ('###############')
 	
+def set_assembly(true_output, prepared_libs, config_dict, name, system_params):
+
+	ram_limit, n_nodes, libstring = system_params
+	
 	###Calling spades_recipee.py to generate the assembly job. In the future it should use config file to select the assembly program to use###
-	karyonjobfile = open(true_output+name+"_karyon.job", 'a')
+	karyonjobfile = open(os.path.join(true_output, f"{name}_karyon.job"), 'a')
 	karyonjobfile.write("\n")
 	switch = False
 	if args.no_assembly == False:
+		assembly = args.no_assembly
+		
 		if args.genome_assembler == "dipspades" or args.genome_assembler == 'dipSPAdes':
-			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], False, ram_limit, n_nodes)
+			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, 
+				config_dict['SPAdes'][1], False, ram_limit, n_nodes)
 			assembly = true_output+"dipspades/consensus_contigs.fasta"
 		elif args.genome_assembler == "spades" or args.genome_assembler == 'SPAdes':
-			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], True, ram_limit, n_nodes)
+			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, 
+				config_dict['SPAdes'][1], True, ram_limit, n_nodes)
 			assembly = true_output+"spades/scaffolds.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
+			redundans_command = "python2 {} -o {} -i {} -t {} {} {}"
+			redundans_noreduction = ""
 			if args.no_reduction == True:
-				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1] + " --noreduction")
-			else:
-				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
-			assembly = true_output+"redundans_output/scaffolds.filled.fa"
+				redundans_noreduction = "--noreduction"
+			
+			karyonjobfile.write(redundans_command.format(
+					os.path.join(config_dict['redundans'][0], "redundans.py"), 
+					os.path.join(true_output, "redundans_output"),
+					libstring, str(n_nodes), config_dict["redundans"][1], redundans_noreduction))
+			
+			assembly = os.path.join(true_output, "redundans_output", "scaffolds.filled.fa")
 			switch = True
 		elif args.genome_assembler == "soapdenovo" or args.genome_assembler == "SOAPdenovo":
-			from soap_recipee import soap_recipee
-			soap_recipee(prepared_libs, name, true_output+"soapdenovo/", config_dict['SOAPdeNovo'][1], karyonjobfile, config_dict['SOAPdeNovo'][0])
+			
+			soap_recipee(prepared_libs, name, 
+				os.path.join(true_output, "soapdenovo"), 
+				config_dict['SOAPdeNovo'][1], 
+				karyonjobfile, 
+				config_dict['SOAPdeNovo'][0])
 			print ("python3 "+os.path.dirname(__file__)+"/soap_recipee.py -r "+prepared_libs+" -n "+name+" -o "+true_output+"soapdenovo "+ "-j "+true_output+name+"_karyon.job")
-			os.system("python3 "+os.path.dirname(__file__)+"/soap_recipee.py -r "+prepared_libs+" -n "+name+" -o "+true_output+"soapdenovo "+ "-j "+true_output+name+"_karyon.job")
-			assembly = true_output+"soapdenovo/"+name+".scafSeq"
-		else:
-			pass
-	else:
-		assembly = args.no_assembly
+			soap_command = "python3 {} -r {} -n {} -o {} -j {} "
+			os.system(soap_command.format(
+				os.path.join(os.path.dirname(__file__), "soap_recipee.py"),
+				prepared_libs,
+				name,
+				os.path.join(true_output, "soapdenovo"),
+				os.path.join(true_output, "{}_karyon.job".format(name))				
+			))
+			assembly = os.path.join(true_output, "soapdenovo", "{}.scafSeq".format(name))
+	
+	reduced_assembly = assembly
 	if args.no_reduction == False and switch == False:
-		karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
-		reduced_assembly = true_output+"redundans_output/scaffolds.filled.fa"
-	elif args.no_reduction == False and switch == True:
-		reduced_assembly = assembly
-	else:
-		reduced_assembly = assembly
+		redundans_command = "python2 {} -f {} -o {} -i {} -t {} {}"
+		karyonjobfile.write(redundans_command.format(
+			os.path.join(config_dict['redundans'][0], "redundans.py"),
+			assembly,
+			os.path.join(true_output, "redundans_output"),
+			libstring,
+			str(n_nodes),
+			config_dict["redundans"][1]
+		))
+		reduced_assembly = os.path.join(true_output, "redundans_output", "scaffolds.filled.fa")
+	
 	karyonjobfile.close()
+	
+	return reduced_assembly
 
-	#5) Create job files
-	if args.no_varcall == False:
-		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly)
-	os.system ("bash "+true_output+name+"_karyon.job")
-	#6) Creates a job file that calls all the job files in the proper order
+def parse_no_varcall(no_varcall):
+	vcf, bam, mpileup = '', '', ''
+	for i in no_varcall:
+		if i[-4:] == ".bam":
+			bam = i
+		if os.path.isfile(f"{i}.bam") == True:
+			bam = i+".bam"
+		if os.path.isfile(f"{i}.sorted.bam") == True:
+			bam = f"{i}.sorted.bam"
+		if i.find("pileup") > -1:
+			mpileup = i
+		if os.path.isfile(f"{i}.mpileup") == True:
+			mpileup = i+".mpileup"
+		if os.path.isfile(f"{i}.pileup") == True:
+			mpileup = f"{i}.pileup"
+		if i[-4:] == ".vcf":
+			vcf = i
+		if os.path.isfile(f"{i}.vcf") == True:
+			vcf = f"{i}.vcf"
+		if os.path.isfile(f"{i}raw.vcf") == True:
+			vcf = f"{i}raw.vcf"
+	return vcf, bam, mpileup
 
-	#7) We create the plots
+def set_plots(true_output, reduced_assembly, champion, config_dict, name, home, job_ID):
+	
 	counter = int(args.max_scaf2plot)
-	
-	def parse_no_varcall(no_varcall):
-		vcf, bam, mpileup = '', '', ''
-		for i in no_varcall:
-			if i[-4:] == ".bam":
-				bam = i
-			if os.path.isfile(i+".bam") == True:
-				bam = i+".bam"
-			if os.path.isfile(i+".sorted.bam") == True:
-				bam = i+".sorted.bam"
-			if i.find("pileup") > -1:
-				mpileup = i
-			if os.path.isfile(i+".mpileup") == True:
-				mpileup = i+".mpileup"
-			if os.path.isfile(i+".pileup") == True:
-				mpileup = i+".pileup"
-			if i[-4:] == ".vcf":
-				vcf = i
-			if os.path.isfile(i+".vcf") == True:
-				vcf = i+".vcf"
-			if os.path.isfile(i+"raw.vcf") == True:
-				vcf = i+"raw.vcf"
-		return vcf, bam, mpileup
-	
 	if args.no_plot == False:
 		if args.no_varcall == False:
-			from karyonplots import katplot, allplots
+			
 			katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
 			allplots(int(args.window_size), 
 				true_output+name+".raw.vcf", 
@@ -293,8 +316,7 @@ def main():
 				true_output, 
 				counter, 
 				job_ID, name, args.scafminsize, args.scafmaxsize)
-		else:
-			from karyonplots import katplot, allplots
+		else:			
 			katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
 			vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
 			allplots(int(args.window_size), 
@@ -312,26 +334,78 @@ def main():
 			args.scafminsize,
 			args.scafmaxsize)	
 
-	###We clean the tmp directory###
+def cleaning_tmp(home, job_ID):
+
+	path_tmp = os.path.join(home, "tmp")
 	if args.keep_tmp == True:
-		existence = open(home + "tmp/" + job_ID + '/_keep_existing_', 'w')
+		existence = open(os.path.join(path_tmp, job_ID, "_keep_existing_"), 'w')
 		existence.close()
 
 	print ("Now I'm cleaning tmp...")
 	if args.keep_tmp == True:
 		print ("...but keeping what you told me...")
-	for e in os.listdir(home + "tmp/"):
-		for i in os.listdir(home + "tmp/"+e):
-			if '_keep_existing_' in os.listdir(home + "tmp/"+e): continue
+	for e in os.listdir(path_tmp):
+		path_tmp_e = os.path.join(path_tmp, e)
+		for i in os.listdir(path_tmp_e):
+			if '_keep_existing_' in os.listdir(path_tmp_e): 
+				continue
 			else:
-				os.remove(home + "tmp/"+e+"/"+i)
-		if '_keep_existing_' in os.listdir(home + "tmp/"+e): continue
-		else: os.rmdir(home + "tmp/"+e)
+				os.remove(os.path.join(path_tmp, e, i))
+		if '_keep_existing_' in os.listdir(path_tmp_e): 
+			continue
+		else: 
+			os.rmdir(path_tmp_e)
+	
 	if args.keep_tmp == True:
 		print ("... tmp files havee been kept")
 	else:	
 		print ("... removed tmp files!")
 
+def main():
+
+	###Defines the location of configuration.txt if setting by default###
+	config_path = args.configuration
+	if not args.configuration:
+		selfpath = os.path.dirname(os.path.realpath(sys.argv[0]))
+		config_path = os.path.join(selfpath[:selfpath.rfind('/')],"configuration.txt")
+	
+	true_output = os.path.abspath(args.output_directory)
+	if true_output[-1] != "/":
+		true_output=true_output+"/"
+
+	
+	counter, ram_limit, n_nodes = set_ram()	
+	
+	job_ID, name = set_job()
+
+	print_config(config_path, ram_limit, n_nodes, job_ID, name)
+
+	prepared_libs, config_dict, home, path_tmp_jobid = prepare_config(config_path, job_ID)
+
+	check_job_paths(path_tmp_jobid)
+
+	katplot("", "", config_dict["KAT"][0], "")
+
+	champion, libstring = prepare_libraries(config_dict, prepared_libs, home, job_ID, true_output)
+
+	print_params(true_output, name, champion, config_dict, counter, home, job_ID)
+
+	reduced_assembly = set_assembly(true_output, prepared_libs, config_dict, name, 
+		[ram_limit, n_nodes, libstring])
+		
+	#5) Create job files
+	if args.no_varcall == False:
+		var_call(prepared_libs, config_dict, true_output, name, args.favourite, 
+			home, str(ram_limit), str(n_nodes), reduced_assembly)
+	os.system ("bash {}".format(os.path.join(true_output, f"{name}_karyon.job")))
+	
+	#6) Creates a job file that calls all the job files in the proper order
+
+	#7) We create the plots
+	set_plots(true_output, reduced_assembly, champion, config_dict, name, home, job_ID)
+	
+	###We clean the tmp directory###
+	cleaning_tmp(home, job_ID)
 
 if __name__ == '__main__':
 	t0  = datetime.now()
