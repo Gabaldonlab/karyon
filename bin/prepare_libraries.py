@@ -44,8 +44,17 @@ def get_mean_read_len(fastqfile, sample_size, compressed_dict):
 				switch = False
 				if len(sampling) >= sample_size:
 					break
-			elif line[0] == "+":
-				switch = True
+			if type(line) is str:
+				if line[0] == "+":
+					switch = True
+			elif type(line) == bytes:
+				try:
+					bline = line.decode('cp437')
+				except UnicodeDecodeError :
+					continue
+				else:
+					if bline.find("+") < 5:
+						switch = True
 			else: continue
 	return [int(numpy.mean(sampling)), numpy.std(sampling)]
 
@@ -58,32 +67,71 @@ def compression_parse(fastq):
 			compressed_dict[i] = "bz2"
 		elif i[i.rfind("tar"):] == "tar":
 			compressed_dict[i] = "tar"
-		elif i[i.rfind("zip"):] == "zip":
-			compressed_dict[i] = "zip"
 		else:
 			compressed_dict[i] = "no-compression"
 	return compressed_dict
+
+def do_line(line, switch, phred64dict, counter):
+	breakswitch = False
+	if switch == False:
+		if line[0] == "+":
+			switch = True
+			counter = counter + 1
+	else:
+		if switch == True:
+			if line.find("Z") > -1:
+				phred64dict[element] = "64"
+				breakswitch = True
+			else:
+				switch = False
+	return (switch, counter, breakswitch)
 
 def phred_parse (fastqlist, sample_size):
 	phred64dict = {}
 	counter = 0
 	for element in fastqlist:
 		switch = False
-		for line in open(element):
-			if counter > sample_size: break
-			if line[0] == "@": continue
-			else:
-				if switch == False:
-					if line[0] == "+":
-						switch = True
-						counter = counter + 1
-					else: continue
-				if switch == True:
-					if line.find("Z") > -1:
-						phred64dict[element] = "64"
-						break
+		print(element)
+		if element.split('.')[-1] == 'gz' or element.split('.')[-1] == 'gzip':
+			for line in gzip.open(element, 'r'):
+				bline = line.decode()[2:-3]
+				if counter > sample_size: break
+				elif len(bline) < 3: continue
+				elif line[0] == "@": continue
 				else:
-					switch = False
+					switch, counter, breakswitch = do_line(bline, switch, phred64dict, counter)
+					if breakswitch == True:
+						break
+		elif element.split('.')[-1] == 'bz2' or element.split('.')[-1] == 'bzip2':
+			for line in bz2.BZ2file(element, "r"):
+				bline = line.decode()[2:-3]
+				if counter > sample_size: break
+				elif len(bline) < 3: continue
+				elif line[0] == "@": continue
+				else:
+					switch, counter, breakswitch = do_line(line, switch, phred64dict, counter)
+					if breakswitch == True:
+						break
+		elif element.split('.')[-1] == 'tar':
+			for line in tarfile.open(element, "r"):
+				bline = line.decode()[2:-3]
+				if counter > sample_size: break
+				elif len(bline) < 3: continue
+				elif line[0] == "@": continue
+				else:
+					switch, counter, breakswitch = do_line(line, switch, phred64dict, counter)
+					if breakswitch == True:
+						break
+		else:
+			for line in open(element):
+				if counter > sample_size: break
+				elif len(line) < 3: continue
+				elif line[0] == "@": continue
+				else:
+					switch, counter, breakswitch = do_line(line, switch, phred64dict, counter)
+					if breakswitch == True:
+						break
+
 	for element in fastqlist:
 		if element not in phred64dict:
 			phred64dict[element] = "33"
