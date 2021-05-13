@@ -113,7 +113,7 @@ def var_v_cov(vcf, pileup, window_size, output, lendict, scafminsize, scafmaxsiz
 	x, y = [], []
 	fig = plt.figure(figsize=(15, 10))
 	for element in snp_density:
-		if element in mean_cov and mean_cov[element] < 200 and mean_cov[element] > 10 and snp_density[element] < 500:
+		if element in mean_cov and mean_cov[element] < 200 and mean_cov[element] > 10 and snp_density[element] < 100:
 			x.append(snp_density[element])
 			y.append(mean_cov[element])
 	xy = np.vstack([x,y])
@@ -121,7 +121,7 @@ def var_v_cov(vcf, pileup, window_size, output, lendict, scafminsize, scafmaxsiz
 	fig, ax = plt.subplots()
 	x1 = pd.Series(x, name='SNPs in '+str(window_size)+" base pairs")
 	x2 = pd.Series(y, name='Coverage')
-	ax = sns.jointplot(x1,x2,kind="kde", height=7, space=0)
+	ax = sns.jointplot(x1,x2,kind="kde", height=7, space=0, legend=True, marginal_ticks=True, fill=True, bw_adjust=.5)
 	plt.savefig(output+'_var_v_cov.'+'ws'+str(window_size)+'.png')
 	plt.xlabel('SNPs in '+str(window_size)+"base pairs")
 	plt.ylabel('Coverage')
@@ -192,7 +192,7 @@ def fair_coin_global(vcf, window_size, output, lendict, scafminsize, scafmaxsize
 					else:
 						value_list.append(float(values[1])/(int(values[0])+int(values[1])))
 						binomial_list.append(numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1])))	
-	print (scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0))
+	#print (scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0))
 	bins = numpy.linspace(0, 1, 100)
 	sns.distplot(binomial_list, bins, label='exp')
 	sns.distplot(value_list, bins, label='obs')
@@ -327,7 +327,7 @@ def ttest_ploidy(number_list):
 	R2_tetraploidA, R2_tetraploidB  = (stats.ttest_1samp(number_list, math.log(3.0,2),nan_policy='omit')), (stats.ttest_1samp(number_list, math.log(1/3.0,2),nan_policy='omit'))
 	return R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB#, mean_number_list, numpy.nanstd(number_list)
 
-def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter):
+def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize):
 	vcf_file = pysam.VariantFile(vcf+".gz", 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	vcfset = set()
@@ -345,18 +345,17 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			n = 0
 			cov_list = [[],[]]
 			while n+step <= end:
-				print(n, n+step, end)
+				#print(n, n+step, end)
 				cov_list[0].append(n+step/2)
 				if len((pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())) == 0:
 					cov_list[1].append(0.0)
 				else:
-					print (pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split(), "potato")
-					#print(bam_file.count_coverage(record.name, n, n+step, quality_threshold=0), "tomato")
+					#print (pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())
+					#print(bam_file.count_coverage(record.name, n, n+step, quality_threshold=0))
 					cov_list[1].append(int(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
-			nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1])
+			nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
 			window_stats = []
-			print(record.name)
 		if prev_record_name == False:
 			prev_record_name = record.name
 		start, end = 0, len(record)

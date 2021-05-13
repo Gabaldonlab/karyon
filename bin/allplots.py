@@ -82,7 +82,7 @@ bam_file = pysam.AlignmentFile(args.bam, 'rb')
 home = config_dict["karyon"][0]
 job_ID = args.job_id if args.job_id else id_generator()
 name = args.output_name if args.output_name else job_ID
-kitchen = home + "kitchen/"+job_ID
+kitchen = home + "tmp/"+job_ID
 
 lendict = {}
 fastainput = SeqIO.index(args.fasta, "fasta")
