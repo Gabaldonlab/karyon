@@ -13,6 +13,7 @@ Scripts contained in this repository:
 ## Authors 
 * **Miguel Ángel Naranjo Ortiz** - *Pipeline work* - [MANaranjo](https://github.com/MANaranjo)
 * **Manuel Molina Marín** - *Docker work* - [manumolina](https://github.com/manumolina)
+* **Manuel Molina Marín** - *Intellectual design & validation* - [tgabaldon](https://github.com/tgabaldon)
 
 ## License 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
