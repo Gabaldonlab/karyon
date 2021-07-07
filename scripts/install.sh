@@ -130,19 +130,19 @@ if [ $CONDACHECK = 1 ]; then
     conda config --add channels conda-forge
     echo "Bioconda OK"
     sleep 2s
+    echo "Installing Bioconda"
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
+    bash ~/miniconda.sh -b -p ~/miniconda 
+    rm ~/miniconda.sh
+    export PATH="$PATH:/root/miniconda/bin"
+    echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
+    source ~/.bashrc
+    echo "Bioconda OK"
+    sleep 2s
             fi
-echo "Installing Bioconda"
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-bash ~/miniconda.sh -b -p ~/miniconda 
-rm ~/miniconda.sh
-export PATH="$PATH:/root/miniconda/bin"
-echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
-source ~/.bashrc
 conda config --add channels defaults
 conda config --add channels bioconda
 conda config --add channels conda-forge
-echo "Bioconda OK"
-sleep 2s
 
 echo "Installing Python packages"
 conda install -y biopython 
