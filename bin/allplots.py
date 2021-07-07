@@ -27,7 +27,7 @@ if __name__ == '__main__':
 	parser.add_argument('-v', '--vcf', required=True, help="VCF file used as input")
 	parser.add_argument('-p', '--pileup', required=True, help="Mpileup file used as input")
 	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
-	parser.add_argument('-l', '--library', required=True, help="Illumina library used for the KAT plot")
+	parser.add_argument('-l', '--library', required=True, nargs='+',  help="Illumina libraries used for the KAT plot")
 	parser.add_argument('--configuration', default=False, help="Configuration file. By default will use ./configuration.txt as the configuration file.")
 	parser.add_argument('-w', '--wsize', default=1000, help="Window size for plotting")
 	parser.add_argument('-x', '--max_scaf2plot', default=20, help="Number of scaffolds to analyze")
@@ -95,7 +95,7 @@ allplots(window_size,
 				args.fasta, 
 				args.bam, 
 				args.pileup, 
-				args.library, 
+				args.library[0], 
 				config_dict['nQuire'][0], 
 				config_dict["KAT"][0], 
 				kitchen, 
