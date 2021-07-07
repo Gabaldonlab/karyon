@@ -9,11 +9,13 @@ if [ ! -z $1 ]; then branch=$1; fi
 
 echo "##################################################################################################"
 echo "#                                                                                                #"
-echo "#                                         Karyon installer                                       #"
+echo "#                                   Karyon light installer                                       #"
 echo "#                                                                                                #"
 echo "#        version 0.1a                                             Miguel Angel Naranjo           #"
 echo "##################################################################################################"
 echo ""
+echo "This will only install dependencies for allplots.py"
+echo "For a full installation please run install.sh"
 echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
 echo "Installation will take 5-10 minutes. "
 echo ""
@@ -156,13 +158,13 @@ conda install -y seaborn
 conda install -y psutil
 conda install -y pysam
 conda install -c bioconda -y sra-tools
-conda install -c bioconda gatk4
 pip3 install  biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 echo "Installing KAT"
 conda install -y kat
 CONDAPATH=`which conda`
 CONDASITE=$(echo "$CONDAPATH" | sed "s/\/conda//")
+echo $CONDASITE
 echo "alias kat=$CONDASITE/kat" >> ~/.bashrc
 source ~/.bashrc
 
@@ -173,26 +175,6 @@ echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selec
 echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 apt-get install -y --force-yes oracle-java8-installer
 
-#echo "Installing GATK..."
-#wget https://github.com/broadinstitute/gatk/releases/download/$GATK_VERSION/gatk-$GATK_VERSION.zip
-#unzip gatk-$GATK_VERSION.zip
-
-echo "Installing SOAPdeNovo"
-wget https://downloads.sourceforge.net/project/soapdenovo2/SOAPdenovo2/bin/r240/SOAPdenovo2-bin-LINUX-generic-r240.tgz
-tar -xvf SOAPdenovo2-bin-LINUX-generic-r240.tgz
-
-echo "Installing SPAdes"
-wget https://github.com/ablab/spades/releases/download/v$SPAdes_VERSION/SPAdes-$SPAdes_VERSION-Linux.tar.gz
-tar -xvf SPAdes-$SPAdes_VERSION-Linux.tar.gz
-
-echo "Installing Trimmomatic"
-wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-$TRIMMOMATIC_VERSION.zip
-unzip Trimmomatic-$TRIMMOMATIC_VERSION.zip
-
-echo "Installing Picard-tools"
-wget https://downloads.sourceforge.net/project/picard/picard-tools/$PICARD_VERSION/picard-tools-$PICARD_VERSION.zip
-unzip picard-tools-$PICARD_VERSION.zip
-
 echo "Installing nQuire"
 git clone --recursive https://github.com/clwgg/nQuire.git
 chmod 777 nQuire
@@ -200,46 +182,6 @@ cd nQuire
 make submodules
 make
 cd ..
-
-echo "Installing Samtools, Bcftools and Htslib..."
-apt-get update
-apt-get install -y libbz2-dev
-apt-get install -y bzip2
-apt-get install -y zlib1g-dev
-apt-get install -y libncurses5-dev 
-apt-get install -y libncursesw5-dev
-apt-get install -y liblzma-dev
-
-wget https://github.com/samtools/htslib/releases/download/1.9/htslib-1.9.tar.bz2
-tar -vxjf htslib-1.9.tar.bz2
-cd htslib-1.9
-make
-cd ..
-
-wget https://github.com/samtools/samtools/releases/download/1.9/samtools-1.9.tar.bz2
-tar -vxjf samtools-1.9.tar.bz2
-cd samtools-1.9
-make
-cd ..
-
-wget https://github.com/samtools/bcftools/releases/download/1.9/bcftools-1.9.tar.bz2
-tar -vxjf bcftools-1.9.tar.bz2
-cd bcftools-1.9
-make
-cd ..
-
-echo "Installing BWA"
-wget https://github.com/lh3/bwa/releases/download/v0.7.15/bwa-0.7.15.tar.bz2
-tar -vxjf bwa-0.7.15.tar.bz2
-cd bwa-0.7.15
-make 
-cd ..
-
-echo "Installing Redundans"
-git clone --recursive https://github.com/lpryszcz/redundans.git
-cd redundans && bin/.compile.sh
-cd ..
-
 
 rm ./*.bz2
 rm ./*.zip
@@ -252,17 +194,14 @@ chmod -R 777 dependencies
 cd dependencies
 
 dep_folder=`pwd`
-#PATH="$CONDASITE:${PATH}"
 PATH="$dep_folder/samtools-1.9/:${PATH}"
 PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
-echo 'alias karyon="python3 $(pwd)/bin/karyon.py"' >> ~/.bashrc
-
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --redundans "$SELF/dependencies/redundans/" --BWA "$dep_folder/bwa-0.7.15/" --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output "$SELF/../configuration.txt"
+python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --samtools "$dep_folder/samtools-1.9/" --nQuire "$dep_folder/nQuire/" --output "$SELF/../configuration.txt"
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
