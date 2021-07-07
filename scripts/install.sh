@@ -140,7 +140,8 @@ conda install -y nose
 conda install -y seaborn
 conda install -y psutil
 conda install -y pysam
-conda install -c -y bioconda sra-tools
+conda install -c bioconda -y sra-tools
+conda install -c bioconda gatk4
 pip3 install  biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 echo "Installing KAT"
@@ -155,9 +156,9 @@ echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selec
 echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 apt-get install -y --force-yes oracle-java8-installer
 
-echo "Installing GATK..."
-wget https://github.com/broadinstitute/gatk/releases/download/$GATK_VERSION/gatk-$GATK_VERSION.zip
-unzip gatk-$GATK_VERSION.zip
+#echo "Installing GATK..."
+#wget https://github.com/broadinstitute/gatk/releases/download/$GATK_VERSION/gatk-$GATK_VERSION.zip
+#unzip gatk-$GATK_VERSION.zip
 
 echo "Installing SOAPdeNovo"
 wget https://downloads.sourceforge.net/project/soapdenovo2/SOAPdenovo2/bin/r240/SOAPdenovo2-bin-LINUX-generic-r240.tgz
@@ -177,7 +178,7 @@ unzip picard-tools-$PICARD_VERSION.zip
 
 echo "Installing nQuire"
 git clone --recursive https://github.com/clwgg/nQuire.git
-sudo chmod 777 nQuire
+chmod 777 nQuire
 cd nQuire
 make submodules
 make
