@@ -166,6 +166,9 @@ CONDASITE=$(echo "$CONDAPATH" | sed "s/\/conda//")
 echo "alias kat=$CONDASITE/kat" >> ~/.bashrc
 source ~/.bashrc
 
+echo "Installing BUSCO"
+conda install -y busco=5.2.2
+
 echo " Installing Java..."
 add-apt-repository -y ppa:webupd8team/java
 apt-get update
