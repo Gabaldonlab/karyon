@@ -1,7 +1,7 @@
 #!/bin/python
 import sys, os, re, subprocess, math
 import psutil
-import pysam
+from pysam import pysam
 from Bio import SeqIO
 import numpy as np
 import numpy.random
@@ -311,7 +311,7 @@ def launch_nQuire(BAMtemp, nQuire, kitchen):
 
 	if free_score < 0.001:
 		free_score, diplo_score, triplo_Score, tetra_Score = float('nan'), float('nan'), float('nan'), float('nan')
-	return round(diplo_score/free_score, 3) , round(triplo_score/free_score, 3), round(tetra_score/free_score, 3)
+	return round(diplo_score/free_score, 3) , round(triplo_score/free_score, 3), round(tetra_score/free_score, 3), free_score
 	
 def ttest_ploidy(number_list):
 	y_dip, y_tripA, y_tripB, y_tetraA, y_tetraB = [], [], [], [], []
@@ -325,9 +325,10 @@ def ttest_ploidy(number_list):
 	R2_diploid = (stats.ttest_1samp(number_list, math.log(1.0,2),nan_policy='omit'))
 	R2_triploidA, R2_triploidB  = (stats.ttest_1samp(number_list, math.log(2.0,2),nan_policy='omit')), (stats.ttest_1samp(number_list, math.log(2.0,2)*-1,nan_policy='omit'))
 	R2_tetraploidA, R2_tetraploidB  = (stats.ttest_1samp(number_list, math.log(3.0,2),nan_policy='omit')), (stats.ttest_1samp(number_list, math.log(1/3.0,2),nan_policy='omit'))
-	return R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB#, mean_number_list, numpy.nanstd(number_list)
+	return R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB
 
-def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize):
+def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot):
+	N, dfbatch = 0, []
 	vcf_file = pysam.VariantFile(vcf+".gz", 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	vcfset = set()
@@ -345,16 +346,15 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			n = 0
 			cov_list = [[],[]]
 			while n+step <= end:
-				#print(n, n+step, end)
 				cov_list[0].append(n+step/2)
-				if len((pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())) == 0:
-					cov_list[1].append(0.0)
+				a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
+				if len(a) == 0:
+					cov_list.append(0.0)
 				else:
-					#print (pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())
-					#print(bam_file.count_coverage(record.name, n, n+step, quality_threshold=0))
-					cov_list[1].append(int(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()[-1]))
+					cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
-			nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
+			if no_plot == True:
+				nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
 			window_stats = []
 		if prev_record_name == False:
 			prev_record_name = record.name
@@ -385,12 +385,21 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			mean_cov = numpy.nanmean(bam_file.count_coverage(record.name, start, start + window_size, quality_threshold=0))
 
 			stdev_cov = numpy.nanstd(bam_file.count_coverage(record.name, start, start + window_size))
-			diplo_score, triplo_score, tetra_score = launch_nQuire(BAMtemp, nQuire, kitchen)
+			diplo_score, triplo_score, tetra_score, free_score = launch_nQuire(BAMtemp, nQuire, kitchen)
 			R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB = ttest_ploidy(log_refalt_list)
-
-			window_stats.append([window, start+window_size/2, diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
+			df = pd.DataFrame(columns=["contig", "start", "end", "diplo_score", 
+			"triplo_score", "tetra_score", "free_score", "normalized_diplo_score", "normalized_triplo_score", "normalized_tetra_score", "mean_cov", 
+			"st_dev_cov", "SNPs", "ploidy"])
+			window_stats.append([window, start+(window_size/2), diplo_score, triplo_score, tetra_score, R2_diploid, R2_triploidA, R2_triploidB, R2_tetraploidA, R2_tetraploidB, mean_cov, stdev_cov, mean_refaltcov_list])
+			dfrow = pd.DataFrame({"contig":record.name, "start": start, "end": start+window_size, "diplo_score": diplo_score*free_score, "triplo_score": triplo_score*free_score, "tetra_score": tetra_score*free_score,
+			"free_score": free_score, "normalized_diplo_score":diplo_score, "normalized_triplo_score": triplo_score, "normalized_tetra_score": tetra_score,"mean_cov": mean_cov, "st_dev_cov": stdev_cov, "SNPs": len(mean_refaltcov_list), "ploidy":0}, index=[N])
 			start = start + step
+			dfbatch.append(dfrow)
+			N = N+1
 		vcf_file.seek(0)
+	df = pd.concat(dfbatch, ignore_index=True)
+	print(df, len(df))
+	return(df)
 
 def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsize, scafmaxsize):
 	name, x, y1, y2, y3, std_cov, mean_cov, snp_den = '', [], [], [], [], [], [], []
@@ -484,7 +493,7 @@ def katplot(fasta, library, KAT, out):
 	print (cmd)
 	print ('###############')
 
-def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name, scafminsize, scafmaxsize):
+def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name, scafminsize, scafmaxsize, no_plot):
 	if out_name==False:
 		outname = ''
 	newpath = newpath+"/"+out_name
@@ -499,15 +508,19 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
 	step = window_size/2
-	scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
-	scaffold_len_log(fasta_file, window_size, fastainput, newpath)
-	var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-	cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-	fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
-	fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
-	cov_v_len(mpileup, fastainput, newpath)
-	katplot(fasta_file, library, KAT, newpath)
-	window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize)
+	df = window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot)
+	if no_plot == False:
+		scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
+		scaffold_len_log(fasta_file, window_size, fastainput, newpath)
+		var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
+		cov_v_len(mpileup, fastainput, newpath)
+		katplot(fasta_file, library, KAT, newpath)
+	print(df)
+	return(df)
+	
 	
 
 

@@ -2,12 +2,12 @@
 desc="""Karyon pipeline.
 More info at: https://github.com/Gabaldonlab/karyon
 """
-epilog="""Author: Miguel Angel Naranjo (email) Barcelona, 01/01/2019"""
+epilog="""Author: Miguel A. Naranjo-Ortiz (miguelangelnaranjoortiz@gmail.com) Worcester MA, 04/Nov/2021"""
 import sys, os, re
 import argparse
 import psutil
 import pysam
-
+import pandas as pd
 import string
 import random
 from spades_recipee import call_SPAdes
@@ -243,15 +243,20 @@ def main():
 		reduced_assembly = assembly
 	else:
 		reduced_assembly = assembly
+	busco_options = ""
+	for i in config_dict['BUSCO'][1:]:
+		busco_options = busco_options + " " + i[:-1]
+	karyonjobfile.write("\n")
+	karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
+	karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
+	karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+".busco\n")
+	karyonjobfile.write("rm -r busco_downloads\n")
 	karyonjobfile.close()
 
-	#5) Create job files
+	#5) Create job file that calls all the programs
 	if args.no_varcall == False:
 		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly)
 	os.system ("bash "+true_output+name+"_karyon.job")
-	#6) Creates a job file that calls all the job files in the proper order
-
-	#7) We create the plots
 	counter = int(args.max_scaf2plot)
 	
 	def parse_no_varcall(no_varcall):
@@ -276,28 +281,28 @@ def main():
 			if os.path.isfile(i+"raw.vcf") == True:
 				vcf = i+"raw.vcf"
 		return vcf, bam, mpileup
-	
-	if args.no_plot == False:
-		if args.no_varcall == False:
-			from karyonplots import katplot, allplots
-			katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
-			allplots(int(args.window_size), 
-				true_output+name+".raw.vcf", 
-				reduced_assembly, 
-				true_output+name+".sorted.bam", 
-				true_output+name+".mpileup", 
-				os.path.abspath(champion[-1]), 
-				config_dict['nQuire'][0], 
-				config_dict["KAT"][0], 
-				home + "tmp/"+job_ID+"/", 
-				true_output, 
-				counter, 
-				job_ID, name, args.scafminsize, args.scafmaxsize)
-		else:
-			from karyonplots import katplot, allplots
-			katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
-			vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
-			allplots(int(args.window_size), 
+
+	if args.no_varcall == False:
+		from karyonplots import katplot, allplots
+		from report import report, ploidy_veredict
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
+		df = allplots(int(args.window_size), 
+			true_output+name+".raw.vcf", 
+			reduced_assembly, 
+			true_output+name+".sorted.bam", 
+			true_output+name+".mpileup", 
+			os.path.abspath(champion[-1]), 
+			config_dict['nQuire'][0], 
+			config_dict["KAT"][0], 
+			home + "tmp/"+job_ID+"/", 
+			true_output, 
+			counter, 
+			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
+	else:
+		from karyonplots import katplot, allplots
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
+		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
+		df = allplots(int(args.window_size), 
 			vcf, 
 			reduced_assembly, 
 			bam, 
@@ -308,9 +313,11 @@ def main():
 			home + "tmp/"+job_ID+"/", 
 			true_output, 
 			counter, 
-			job_ID, name,
-			args.scafminsize,
-			args.scafmaxsize)	
+			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
+	os.path.mkdir(true_output+"/Report/")
+	df2 = ploidy_veredict(df, true_output, name)
+	report(true_output, name, args.no_reduction)
+	df2.to_csv(true_output+"/Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###
 	if args.keep_tmp == True:
@@ -331,7 +338,6 @@ def main():
 		print ("... tmp files havee been kept")
 	else:	
 		print ("... removed tmp files!")
-
 
 if __name__ == '__main__':
 	t0  = datetime.now()

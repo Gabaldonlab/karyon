@@ -110,6 +110,9 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, r
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
 	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')
 	bash_job.write(config_dict["bcftools"][0]+"bcftools mpileup --fasta-ref " + locspp + ".fasta " + config_dict["bcftools"][1]+" "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')
-	bash_job.write(config_dict["samtools"][0]+"samtools flagstats "+locspp+'.sorted.bam > '+locspp+'.flagstat\n')
+	bash_job.write(config_dict["samtools"][0]+"samtools flagstat "+locspp+'.sorted.bam > '+locspp+'.flagstat\n')
 	bash_job.write("rm "+locspp+'.bam\n')
 	bash_job.write("rm "+locspp+'.sam\n')
+	bash_job.write(config_dict["nQuire"][0]+" create -b "+ locspp+'.sorted.bam -o '+locspp+' -x\n')
+	bash_job.write(config_dict["nQuire"][0]+" lrdmodel "+ locspp+'.bin > '+locspp+'.lrdtest\n')
+	
