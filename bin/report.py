@@ -104,13 +104,14 @@ def report(true_output, name, df, no_reduction):
 	a = df.count()
 	b = []
 	for i in range(0,4):
-		b.append(str(df["ploidy" == i].count()/a))
+		b.append(str(df.loc["ploidy" == i].count()/a))
 	report.write("Percent of haploid windows:/t"+b[1]+"%\n")
 	report.write("Percent of diploid windows:/t"+b[2]+"%\n")
 	report.write("Percent of triploid windows:/t"+b[3]+"%\n")
 	report.write("Percent of tetraploid windows:/t"+b[4]+"%\n")
 	report.write("Percent of unassigned windows:/t"+b[0]+"%\n")
 	report.write("Main ploidy is:\t"+ploid_dict[b.index(max(b))]+"\n")
+	report.write("Diploid regions have an average of "+np.mean(df.loc["ploidy" = 2]["SNPs"])/window_size+"% of variant loci\n")
 	report.write("\n\n")
 	report.write("###Per scaffold analysis###\n")
 	fastadict = SeqIO.index(true_output+name+".fasta", "fasta")

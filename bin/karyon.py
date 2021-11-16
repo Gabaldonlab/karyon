@@ -27,6 +27,7 @@ parser.add_argument('-T', '--no_trimming', action='store_true', default=False, h
 parser.add_argument('-A', '--no_assembly', default=False, help='If this tag is active it will skip the assembly step. It requires a reference assembly.')
 parser.add_argument('-R', '--no_reduction', action='store_true', default=False, help='If this tag is active, the program will not launch the reduction step of redundans. Remember that the step is used to perform many downstream analyses. If you skip it, the analyses may not make much sense.')
 parser.add_argument('-V', '--no_varcall', nargs='+', default=False, help="If this tag is active, the program will skip the variant calling step. Many downstream analyses require this and won't be possible if you skip it.")
+parser.add_argument('-B', '--no_busco', default=False, action='store_true', help='If this tag is active, BUSCO analysis will be ommited.')
 parser.add_argument('-P', '--no_plot', action='store_true', default=False, help="If this tag is active, the program will omit the plots at the end of the the variant calling step.")
 parser.add_argument('-w', '--window_size', default=1000, help='Window size used for some of the analyses. Default is 1000 (1Kb)')
 parser.add_argument('-x', '--max_scaf2plot', default=20, help="Maximum number of scaffolds to plot for scaffold-specific plots. Default is 20.")
@@ -244,13 +245,14 @@ def main():
 	else:
 		reduced_assembly = assembly
 	busco_options = ""
-	for i in config_dict['BUSCO'][1:]:
-		busco_options = busco_options + " " + i[:-1]
-	karyonjobfile.write("\n")
-	karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
-	karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
-	karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+".busco\n")
-	karyonjobfile.write("rm -r busco_downloads\n")
+	if args.no_busco == False:
+		for i in config_dict['BUSCO'][1:]:
+			busco_options = busco_options + " " + i[:-1]
+		karyonjobfile.write("\n")
+		karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
+		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
+		karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+".busco\n")
+		karyonjobfile.write("rm -r busco_downloads\n")
 	karyonjobfile.close()
 
 	#5) Create job file that calls all the programs
