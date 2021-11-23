@@ -108,7 +108,7 @@ df = allplots(window_size,
 	 			args.scafmaxsize, False)
 
 ploidy_veredict(df, true_output, name, window_size)
-df2 = report(true_output, name, df, False)
+df2 = report(true_output, name, df, False, False, True)
 df2.to_csv(true_output+"report/"+name+".csv", index=False)
 os.chdir(cwd)	
 

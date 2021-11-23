@@ -50,11 +50,11 @@ def get_flagstat(flagstat):
 			prop_paired = float(line.split("(")[-1].split("%")[0])
 	return mapped, prop_paired
 	
-def report(true_output, name, df, no_reduction):
+def report(true_output, name, df, no_reduction, no_red_assembly, no_busco):
 	report = open(true_output+"/Report/report.txt", "w")
 	fastats = fasta_stats(true_output+name+".fasta")
 	nQlist = get_nQuire(true_output+name+".lrdtest")
-	buscoval, buscovalproka = get_busco(buco_file), get_busco(busco_proka)
+	buscoval, buscovalproka = get_busco(true_output+name+".busco"), get_busco(true_output+name+".busco")
 	mapped, prop_paired = get_flagstat(flagstat)
 	report.write("###GLOBAL STATS###\n")
 	report.write("Scaffolds:\t"+str(fastats[1])+"\n")
@@ -68,13 +68,19 @@ def report(true_output, name, df, no_reduction):
 	report.write("Length of scaffolds > 1000bp:\t"+str(fastats[5])+"\n")
 	report.write("N50:\t"+str(fastats[6])+"\n")
 	report.write("N90:\t"+str(fastats[7])+"\n")
-	report.write("BUSCO scores:")
-	report.write("Complete: "+buscoval[0]+"%, of which "+buscoval[1]+"% are single copy and "+buscoval[2]+"% are duplicated.")
-	if buscoval[0] < 90 and buscoval > 70:
-		report.write("WARNING: Your genome has a low BUSCO completeness.\n")
-	if buscoval <= 70:
-		report.write("WARNING: Your genome has a VERY low BUSCO completeness!\n")
-	report.write("Fragmented: "+buscoval[3]+"%. Missing: "+buscoval[4])
+	if no_busco == False:
+		report.write("BUSCO scores:")
+		report.write("Complete: "+str(buscoval[0])+"%, of which "+str(buscoval[1])+"% are single copy and "+str(buscoval[2])+"% are duplicated.")
+		if buscoval[0] < 90 and buscoval > 70:
+			report.write("WARNING: Your genome has a low BUSCO completeness.\n")
+		if buscoval <= 70:
+			report.write("WARNING: Your genome has a VERY low BUSCO completeness!\n")
+		report.write("Fragmented: "+buscoval[3]+"%. Missing: "+buscoval[4])
+		if no_red_assembly != False and no_reduction != False:
+			no_red_busco = get_busco(true_output+name+"_no_reduc.busco")
+			report.write("Values before reduction: C: "+str(no_red_busco[0])+", SC: "+str(no_red_busco[1])+", D: "+str(+no_red_busco[2])+", F:"+str(no_red_busco[3])+", M: "+str(no_red_busco[4])+"\n")
+			if buscoval[0]/no_red_busco[0] < 0.9:
+				report.write("WARNING: Reduction has caused loss of information, based on BUSCO values before and after reduction.\n")
 	#report.write("BUSCO (prokaryotic) scores:")
 	report.write("\n")
 	report.write("###ALIGNMENT STATS###\n")
@@ -111,7 +117,7 @@ def report(true_output, name, df, no_reduction):
 	report.write("Percent of tetraploid windows:/t"+b[4]+"%\n")
 	report.write("Percent of unassigned windows:/t"+b[0]+"%\n")
 	report.write("Main ploidy is:\t"+ploid_dict[b.index(max(b))]+"\n")
-	report.write("Diploid regions have an average of "+np.mean(df.loc["ploidy" = 2]["SNPs"])/window_size+"% of variant loci\n")
+	report.write("Diploid regions have an average of "+np.mean(df.loc["ploidy" == 2]["SNPs"])/window_size+"% of variant loci\n")
 	report.write("\n\n")
 	report.write("###Per scaffold analysis###\n")
 	fastadict = SeqIO.index(true_output+name+".fasta", "fasta")

@@ -27,8 +27,8 @@
 +picard-tools
 @/home/mnaranjo/Documents/karyon/scripts/dependencies/picard-tools-1.78/
 +SPAdes
-@/home/mnaranjo/Documents/karyon/scripts/dependencies/SPAdes-3.9.0-Linux/+KAT
-@
+@/home/mnaranjo/Documents/karyon/scripts/dependencies/SPAdes-3.9.0-Linux/
+
 +nQuire
 @/home/mnaranjo/Documents/karyon/scripts/dependencies/nQuire/nQuire
 +SOAPdeNovo

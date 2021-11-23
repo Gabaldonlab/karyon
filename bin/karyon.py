@@ -87,7 +87,6 @@ def exit_program(message):
 
 
 def main():
-    
 
 	###Defines the location of configuration.txt if setting by default###
 	config_path = args.configuration
@@ -217,14 +216,18 @@ def main():
 		if args.genome_assembler == "dipspades" or args.genome_assembler == 'dipSPAdes':
 			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], False, ram_limit, n_nodes)
 			assembly = true_output+"dipspades/consensus_contigs.fasta"
+			no_red_assembly = true_output+"dipspades/consensus_contigs.fasta"
 		elif args.genome_assembler == "spades" or args.genome_assembler == 'SPAdes':
 			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], True, ram_limit, n_nodes)
 			assembly = true_output+"spades/scaffolds.fasta"
+			no_red_assembly = true_output+"dipspades/consensus_contigs.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
 			if args.no_reduction == True:
 				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1] + " --noreduction")
+				no_red_assembly = true_output+"redundans_output/scaffolds.filled.fa"
 			else:
 				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
+				no_red_assembly = true_output+"redundans_output/contigs.fa"
 			assembly = true_output+"redundans_output/scaffolds.filled.fa"
 			switch = True
 		elif args.genome_assembler == "soapdenovo" or args.genome_assembler == "SOAPdenovo":
@@ -253,6 +256,13 @@ def main():
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
 		karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+".busco\n")
 		karyonjobfile.write("rm -r busco_downloads\n")
+		if args.no_reduction == False:
+			karyonjobfile.write("\n")
+			karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
+			karyonjobfile.write("mv " + name + " " + true_output+name+"_no_reduc_busco\n")
+			karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
+			karyonjobfile.write("rm -r busco_downloads\n")
+			
 	karyonjobfile.close()
 
 	#5) Create job file that calls all the programs
@@ -316,9 +326,9 @@ def main():
 			true_output, 
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
-	os.path.mkdir(true_output+"/Report/")
-	df2 = ploidy_veredict(df, true_output, name)
-	report(true_output, name, args.no_reduction)
+	os.mkdir(true_output+"/Report/")
+	df2 = ploidy_veredict(df, true_output, name, window_size)
+	report(true_output, name, args.no_reduction, no_red_assembly, args.no_busco)
 	df2.to_csv(true_output+"/Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###
