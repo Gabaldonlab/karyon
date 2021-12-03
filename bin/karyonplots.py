@@ -486,7 +486,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	cmd = KAT+"kat comp -o "+out+" "+library+" "+fasta+" > "+out+".katreport"
+	cmd = KAT+"kat comp -o "+out[:-1]+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)
@@ -510,6 +510,7 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	step = window_size/2
 	df = window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot)
 	if no_plot == False:
+		pass
 		scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
 		scaffold_len_log(fasta_file, window_size, fastainput, newpath)
 		var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
@@ -518,7 +519,6 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 		fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
 		cov_v_len(mpileup, fastainput, newpath)
 		katplot(fasta_file, library, KAT, newpath)
-	print(df)
 	return(df)
 	
 	

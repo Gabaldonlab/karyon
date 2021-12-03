@@ -28,7 +28,7 @@ if __name__ == '__main__':
 	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
 	parser.add_argument('-l', '--library', required=True, nargs='+',  help="Illumina libraries used for the KAT plot")
 	parser.add_argument('--configuration', default=False, help="Configuration file. By default will use ./configuration.txt as the configuration file.")
-	parser.add_argument('-w', '--wsize', default=1000, help="Window size for plotting")
+	parser.add_argument('-w', '--window_size', default=1000, help="Window size for plotting")
 	parser.add_argument('-x', '--max_scaf2plot', default=20, help="Number of scaffolds to analyze")
 	parser.add_argument('-s', '--scafminsize', default=False, help="Will ignore scaffolds with length below the given threshold")
 	parser.add_argument('-S', '--scafmaxsize', default=False, help="Will ignore scaffolds with length above the given threshold")
@@ -69,7 +69,7 @@ config_dict = parse_config(config_path)
 
 	
 counter = int(args.max_scaf2plot)
-window_size=int(args.wsize)
+window_size=int(args.window_size)
 step=window_size/2
 
 true_output = os.path.abspath(args.output_directory)
@@ -107,8 +107,8 @@ df = allplots(window_size,
 	 			args.scafminsize,
 	 			args.scafmaxsize, False)
 
-ploidy_veredict(df, true_output, name, window_size)
-df2 = report(true_output, name, df, False, False, True)
+df2 = ploidy_veredict(df, true_output, name, window_size)
+report(true_output, name, df2, True, False, True, window_size)
 df2.to_csv(true_output+"report/"+name+".csv", index=False)
 os.chdir(cwd)	
 

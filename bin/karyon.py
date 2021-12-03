@@ -98,7 +98,7 @@ def main():
 	true_output = os.path.abspath(args.output_directory)
 	if true_output[-1] != "/":
 		true_output=true_output+"/"
-
+	print("wololo", true_output)
 	###Sets RAM usage options###
 	total_nodes = n_nodes = psutil.cpu_count()
 	if args.nodes and int(args.nodes) < total_nodes:
@@ -239,6 +239,7 @@ def main():
 		else:
 			pass
 	else:
+		no_red_assembly = args.no_assembly
 		assembly = args.no_assembly
 	if args.no_reduction == False and switch == False:
 		karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
@@ -254,20 +255,20 @@ def main():
 		karyonjobfile.write("\n")
 		karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
-		karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+".busco\n")
+		karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
 		karyonjobfile.write("rm -r busco_downloads\n")
 		if args.no_reduction == False:
 			karyonjobfile.write("\n")
 			karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
-			karyonjobfile.write("mv " + name + " " + true_output+name+"_no_reduc_busco\n")
-			karyonjobfile.write("mv " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
+			karyonjobfile.write("mv " + name + "_no_reduc " + true_output+name+"_no_reduc_busco\n")
+			karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
 			karyonjobfile.write("rm -r busco_downloads\n")
 			
 	karyonjobfile.close()
 
 	#5) Create job file that calls all the programs
 	if args.no_varcall == False:
-		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly)
+		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly, no_red_assembly, args.no_reduction)
 	os.system ("bash "+true_output+name+"_karyon.job")
 	counter = int(args.max_scaf2plot)
 	
@@ -297,7 +298,7 @@ def main():
 	if args.no_varcall == False:
 		from karyonplots import katplot, allplots
 		from report import report, ploidy_veredict
-		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 		df = allplots(int(args.window_size), 
 			true_output+name+".raw.vcf", 
 			reduced_assembly, 
@@ -327,8 +328,8 @@ def main():
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
 	os.mkdir(true_output+"/Report/")
-	df2 = ploidy_veredict(df, true_output, name, window_size)
-	report(true_output, name, args.no_reduction, no_red_assembly, args.no_busco)
+	df2 = ploidy_veredict(df, true_output, name, args.window_size)
+	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.no_busco, args.window_size)
 	df2.to_csv(true_output+"/Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###

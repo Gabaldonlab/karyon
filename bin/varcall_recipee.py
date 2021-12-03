@@ -72,7 +72,7 @@ def create_hypo_dict(fastq):
 
 #if os.path.exists(args.output+"/"+args.name+".karyon.txt"): os.remove(args.output+"/"+args.name+".karyon.txt")
 
-def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, reduced_assembly):
+def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, reduced_assembly, no_red_assembly, no_reduction):
 	outputfile = output+name+"_karyon.job"
 	parse_dict = {}
 	libstring = ' '
@@ -97,6 +97,9 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, r
 	pairs = ''
 	bash_job.write("\n")
 	bash_job.write("cp "+reduced_assembly+" "+locspp+".fasta\n\n")
+	if no_reduction == False:
+		bash_job.write("cp "+no_red_assembly+" "+locspp+"_no_red.fasta\n\n")
+	bash_job.write("\n")
 	
 	champion, parse_dict = select_champion(fastq, favourite)
 
