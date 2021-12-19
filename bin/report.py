@@ -54,7 +54,7 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 	true_output = os.path.abspath(true_output)
 	if true_output[-1] != "/":
 		true_output=true_output+"/"
-	report = open(true_output+"Report/"+name+"report.txt", "w")
+	report = open(true_output+"Report/"+name+"_report.txt", "w")
 	#fastats = fasta_stats([true_output+name+".fasta"])
 	fastats = FastaIndex(true_output+name+".fasta").stats()
 	nQlist = get_nQuire(true_output+name+".lrdtest")
