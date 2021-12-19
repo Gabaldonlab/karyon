@@ -12,18 +12,19 @@ def fasta_stats(fasta):
 	return(outlist)
 
 def get_busco(busco_file):
-	my_busco = open(busco_file, 'w')
+	my_busco = open(busco_file, 'r')
 	switch = False
 	buscolist = []
 	for line in my_busco:
-		if switch == True and len(line) > 0:
-			a = line.split(":").split("%")
-			buscolist.append(float(a[1]))
-			buscolist.append(float(a[3]))
-			buscolist.append(float(a[5]))
-			buscolist.append(float(a[7]))
-			buscolist.append(float(a[9]))
-			switch == False
+		if switch == True and len(line) > 1:
+			a = line[:-1].split("%")
+			buscolist.append(float(a[0].split(":")[-1]))
+			buscolist.append(float(a[1].split(":")[-1]))
+			buscolist.append(float(a[2].split(":")[-1]))
+			buscolist.append(float(a[3].split(":")[-1]))
+			buscolist.append(float(a[4].split(":")[-1]))
+			buscolist.append(float(a[5].split(":")[-1]))
+			break
 		if line.find("*****") > -1:
 			switch = True
 		else:
@@ -49,11 +50,11 @@ def get_flagstat(flagstat):
 			prop_paired = float(line.split("(")[-1].split("%")[0])
 	return mapped, prop_paired
 	
-def report(true_output, name, df, no_reduction, no_red_assembly, no_busco, window_size):
+def report(true_output, name, df, no_reduction, no_red_assembly, window_size, mybusco, noredbusco):
 	true_output = os.path.abspath(true_output)
 	if true_output[-1] != "/":
 		true_output=true_output+"/"
-	report = open(true_output+"/Report/"+name+"report.txt", "w")
+	report = open(true_output+"Report/"+name+"report.txt", "w")
 	#fastats = fasta_stats([true_output+name+".fasta"])
 	fastats = FastaIndex(true_output+name+".fasta").stats()
 	nQlist = get_nQuire(true_output+name+".lrdtest")
@@ -70,25 +71,27 @@ def report(true_output, name, df, no_reduction, no_red_assembly, no_busco, windo
 	report.write("Length of scaffolds > 1000bp:\t"+str(fastats[5])+"\n")
 	report.write("N50:\t"+str(fastats[6])+"\n")
 	report.write("N90:\t"+str(fastats[7])+"\n")
-	if no_busco != True:
-		buscoval = get_busco(true_output+name+".busco")
-		if no_reduction != True:
-			buscored = get_busco(true_output+name+"_no_reduc.busco")
+	if mybusco != False:
+		buscoval = get_busco(mybusco)
 		report.write("BUSCO scores:")
 		report.write("Complete: "+str(buscoval[0])+"%, of which "+str(buscoval[1])+"% are single copy and "+str(buscoval[2])+"% are duplicated.")
 		if buscoval[0] < 90 and buscoval > 70:
 			report.write("WARNING: Your genome has a low BUSCO completeness.\n")
-		if buscoval <= 70:
+		if buscoval[0] <= 70:
 			report.write("WARNING: Your genome has a VERY low BUSCO completeness!\n")
-		report.write("Fragmented: "+buscoval[3]+"%. Missing: "+buscoval[4])
-		if no_red_assembly != False and no_reduction != False:
-			no_red_busco = get_busco(true_output+name+"_no_reduc.busco")
-			report.write("Values before reduction: C: "+str(no_red_busco[0])+", SC: "+str(no_red_busco[1])+", D: "+str(+no_red_busco[2])+", F:"+str(no_red_busco[3])+", M: "+str(no_red_busco[4])+"\n")
-			if buscoval[0]/no_red_busco[0] < 0.9:
+		report.write("Fragmented: "+str(buscoval[3])+"%. Missing: "+str(buscoval[4]))
+		if noredbusco != False and no_reduction != True:
+			noredbuscoval = get_busco(noredbusco)
+			report.write("Values before reduction: C: "+str(noredbuscoval[0])+", SC: "+str(noredbuscoval[1])+", D: "+str(+noredbuscoval[2])+", F:"+str(noredbuscoval[3])+", M: "+str(noredbuscoval[4])+"\n")
+			if buscoval[0]/noredbuscoval[0] < 0.9:
 				report.write("WARNING: Reduction has caused loss of information, based on BUSCO values before and after reduction.\n")
+		if os.path.isdir(true_output+name+"no_reduc_busco") == True and name+"no_reduc.busco" not in os.listdir(true_output):
+			report.write("WARNING: Busco evaluation for the non-reduced assembly seems to have failed.")
+	if os.path.isdir(true_output+name+"_busco") == True and name+".busco" not in os.listdir(true_output):
+		report.write("WARNING: Busco evaluation seems to have failed.")
 	#report.write("BUSCO (prokaryotic) scores:")
 	report.write("\n")
-	report.write("###ALIGNMENT STATS###\n")
+	report.write("\n###ALIGNMENT STATS###\n")
 	report.write("% of aligned reads:" + str(mapped) + "%\n")
 	if mapped < 90:
 		report.write("WARNING: The percent of mapped reads is low\n")
@@ -97,25 +100,26 @@ def report(true_output, name, df, no_reduction, no_red_assembly, no_busco, windo
 		report.write("WARNING: The percent of properly paired reads is low\n")
 	if no_reduction != True:
 		redustats = FastaIndex(no_red_assembly).stats()
-		report.write("###REDUCTION STATS###\n")
-		report.write("Scaffolds: From "+str(redustats[1])+" to "+str(fastats[1])+" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-		report.write("Assembly size: From "+str(redustats[2])+" to "+str(fastats[2])++" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-		report.write("Scaffolds > 1000bp:: From "+str(redustats[4])+" to "+str(fastats[4])+" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-		report.write("Length of scaffolds > 1000bp:: From "+str(redustats[5])+" to "+str(fastats[5])+" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-		report.write("N50: From "+str(redustats[6])+" to "+str(fastats[6])+" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-		report.write("N90: From "+str(redustats[7])+" to "+str(fastats[7])+" (" +str(100*(redustats[1]-fastastats[1])/redustats[1])+"%)\n")
-	report.write("\n\n")
-	report.write("###PLOIDY ANALYSIS###\n")
+		report.write("\n###REDUCTION STATS###\n")
+		report.write("Scaffolds: From " + str(redustats[1])+" to "+str(fastats[1])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("Assembly size: From " + str(redustats[2])+" to "+ str(fastats[2]) + " (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("Scaffolds > 1000bp:: From " + str(redustats[4])+" to "+ str(fastats[4])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("Length of scaffolds > 1000bp:: From " + str(redustats[5])+" to "+str(fastats[5])+" (" +str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("N50: From " + str(redustats[6])+" to " + str(fastats[6])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("N90: From " + str(redustats[7])+" to " + str(fastats[7])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+	report.write("\n###PLOIDY ANALYSIS###\n")
 	report.write("Global nQuire free model score:\t"+str(nQlist[0])+"\n")
 	report.write("Global nQuire diploid score:\t"+str(nQlist[1])+"\n")
 	report.write("Global nQuire triploid score:\t"+str(nQlist[2])+"\n")
 	report.write("Global nQuire tetraploid score:\t"+str(nQlist[3])+"\n")
 	ploid_dict = {0:"Haploid, most likely", 1:"Haploid", 2:"Diploid", 3:"Triploid", 4:"Tetraploid"}
-	a = df.count()
+	a = len(df)
 	b = []
-	pdict = df['ploidy'].value_counts().to_dict()
+	values = df['ploidy'].value_counts(dropna=False).keys().tolist()
+	counts = df['ploidy'].value_counts(dropna=False).tolist()
+	pdict = dict(zip(values, counts))
 	for i in range(0,5):
-		b.append(str(pdict[i]/a))
+		b.append(str(100*(pdict[i]/a)))
 	report.write("Percent of haploid windows:\t"+b[1]+"%\n")
 	report.write("Percent of diploid windows:\t"+b[2]+"%\n")
 	report.write("Percent of triploid windows:\t"+b[3]+"%\n")
@@ -127,11 +131,11 @@ def report(true_output, name, df, no_reduction, no_red_assembly, no_busco, windo
 	report.write("###Per scaffold analysis###\n")
 	fastadict = SeqIO.index(true_output+name+".fasta", "fasta")
 	for entry in fastadict:
-		contigdata = df["contig" == entry.id]
-		nwindows = contigdata.count()
+		contigdata = df.loc[df["contig"]==fastadict[entry].id]
+		nwindows = len(contigdata.count())
 		for i in range(1,4):
-			if contigdata["ploidy" == i]/nwindows > 0.5 and i != b.index(max(b)):
-				report.write("Scaffold " + fastadict[entry].id + ", with a length of " + str(len(entry.seq))+ "base pairs, has a " + str(contigdata["ploidy" == i]/nwindows) + "% of windows that are" + ploid_dict[i] + ".\n")
+			if len(contigdata.loc[contigdata["ploidy"] == i])/nwindows > 0.5 and i != b.index(max(b[1:])):
+				report.write("Scaffold " + fastadict[entry].id + ", with a length of " + str(len(fastadict[entry].seq))+ "base pairs, has a " + str(100*(len(contigdata.loc[contigdata["ploidy"] == i])/nwindows)) + "% of windows that are " + ploid_dict[i].lower() + ".\n")
 
 def ploidy_veredict(df, true_output, name, window_size):
 	b = df.loc[df.diplo_score != np.NAN] 

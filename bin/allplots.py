@@ -108,8 +108,8 @@ df = allplots(window_size,
 	 			args.scafmaxsize, False)
 
 df2 = ploidy_veredict(df, true_output, name, window_size)
-report(true_output, name, df2, True, False, True, window_size)
-df2.to_csv(true_output+"report/"+name+".csv", index=False)
+report(true_output, name, df2, True, False, window_size, False, False)
+df2.to_csv(true_output+"/Report/"+name+".csv", index=False)
 os.chdir(cwd)	
 
 

@@ -220,7 +220,7 @@ def main():
 		elif args.genome_assembler == "spades" or args.genome_assembler == 'SPAdes':
 			call_SPAdes(prepared_libs, config_dict['SPAdes'][0], true_output, name, config_dict['SPAdes'][1], True, ram_limit, n_nodes)
 			assembly = true_output+"spades/scaffolds.fasta"
-			no_red_assembly = true_output+"dipspades/consensus_contigs.fasta"
+			no_red_assembly = true_output+"spades/scaffolds.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
 			if args.no_reduction == True:
 				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1] + " --noreduction")
@@ -255,13 +255,13 @@ def main():
 		karyonjobfile.write("\n")
 		karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
-		karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
+		#karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
 		karyonjobfile.write("rm -r busco_downloads\n")
 		if args.no_reduction == False:
 			karyonjobfile.write("\n")
 			karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
 			karyonjobfile.write("mv " + name + "_no_reduc " + true_output+name+"_no_reduc_busco\n")
-			karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
+			#karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
 			karyonjobfile.write("rm -r busco_downloads\n")
 			
 	karyonjobfile.close()
@@ -271,6 +271,32 @@ def main():
 		var_call(prepared_libs, config_dict, true_output, name, args.favourite, home, str(ram_limit), str(n_nodes), reduced_assembly, no_red_assembly, args.no_reduction)
 	os.system ("bash "+true_output+name+"_karyon.job")
 	counter = int(args.max_scaf2plot)
+	
+	if args.no_busco != True:
+		from shutil import copyfile
+		mybusco = False
+		for i in os.listdir(true_output+name+"_busco"):
+			if i.find("specific") > -1:
+				mybusco = i
+				break
+			if i.find('short_summary') > -1 and mybusco != False:
+				if i.find("specific") == -1:
+					mybusco = i
+		if mybusco != False:
+			copyfile(true_output+name+"_busco/"+mybusco, true_output+name+".busco")
+			mybusco = true_output+name+".busco"
+		if args.no_reduction != True:
+			noredubusco = False
+			for e in os.listdir(true_output+name+"_no_reduc_busco"):
+				if e.find("specific") > -1:
+					noredubusco = e
+					break
+				if e.find('short_summary') > -1 and noredubusco != False:
+					if e.find("specific") == -1:
+						noredubusco = e
+			if noredubusco != False:
+				copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
+				noredubusco = true_output+name+"_no_reduc.busco"
 	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
@@ -295,6 +321,7 @@ def main():
 				vcf = i+"raw.vcf"
 		return vcf, bam, mpileup
 
+	os.mkdir(true_output+"Report/")
 	if args.no_varcall == False:
 		from karyonplots import katplot, allplots
 		from report import report, ploidy_veredict
@@ -308,12 +335,12 @@ def main():
 			config_dict['nQuire'][0], 
 			config_dict["KAT"][0], 
 			home + "tmp/"+job_ID+"/", 
-			true_output, 
+			true_output+"Report/", 
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
 	else:
 		from karyonplots import katplot, allplots
-		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output)
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
 		df = allplots(int(args.window_size), 
 			vcf, 
@@ -327,10 +354,10 @@ def main():
 			true_output, 
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
-	os.mkdir(true_output+"/Report/")
+	
 	df2 = ploidy_veredict(df, true_output, name, args.window_size)
-	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.no_busco, args.window_size)
-	df2.to_csv(true_output+"/Report/report"+name+".csv", index=False)
+	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.window_size, mybusco, noredubusco)
+	df2.to_csv(true_output+"Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###
 	if args.keep_tmp == True:
