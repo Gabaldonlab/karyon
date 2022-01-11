@@ -259,8 +259,6 @@ dep_folder=`pwd`
 PATH="$dep_folder/samtools-1.9/:${PATH}"
 PATH="$dep_folder/bcftools-1.9/:${PATH}"
 PATH="$dep_folder/bwa-0.7.15/:${PATH}"
-echo 'alias karyon="python3 $(pwd)/bin/karyon.py"' >> ~/.bashrc
-
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
