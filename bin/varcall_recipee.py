@@ -106,9 +106,19 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, r
 	bash_job.write("java -Xmx"+memory+"g -jar " + config_dict["picard-tools"][0]+"CreateSequenceDictionary.jar R="+locspp+'.fasta O='+locspp+'.dict\n\n')
 	bash_job.write(config_dict["BWA"][0]+"bwa index "+locspp+'.fasta\n\n')
 	if parse_dict[champion[1]][4] == '1':
-		bash_job.write("python2 " + loc +"/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+" -B "+config_dict["BWA"][0] + " -S "+config_dict["samtools"][0]+"\n\n")	
+		bash_job.write("python " + loc +"/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -f2 "+os.path.abspath(parse_dict[champion[1]][5])+" -n "+locspp+" -t "+str(nodes))
+		if len(config_dict["BWA"][0]) > 0:
+			bash_job.write(" -B "+config_dict["BWA"][0])
+		if len(config_dict["samtools"][0]) > 0:
+			bash_job.write(" -S "+config_dict["samtools"][0])
+		bash_job.write(" \n\n")
 	if parse_dict[champion[1]][4] == 's':
-		bash_job.write("python2 " + loc + "/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp+" -B "+config_dict["BWA"][0] + " -S "+config_dict["samtools"][0]+"\n\n")
+		bash_job.write("python " + loc + "/launch_bwa.py -r "+locspp+".fasta -f1 "+os.path.abspath(champion[1])+" -n "+locspp + " -t "+str(nodes))
+		if len(config_dict["BWA"][0]) > 0:
+			bash_job.write(" -B "+config_dict["BWA"][0])
+		if len(config_dict["samtools"]) > 0:
+			bash_job.write(" -S "+config_dict["samtools"][0])
+		bash_job.write(" \n\n")
 	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp+'.sorted.bam\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
 	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')

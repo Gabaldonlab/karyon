@@ -13,6 +13,7 @@ parser.add_argument("-f2", "--f2path", dest="f2path", default=False, help="fastq
 parser.add_argument("-n", "--name", dest="outname", required=True, help="name of the output")
 parser.add_argument("-B", "--bwa", default="")
 parser.add_argument("-S", "--samtools", default="")
+parser.add_argument("-t", "--threads", default=8)
 
 args = parser.parse_args()
 
@@ -26,20 +27,17 @@ reference = str(args.ref)
 name = str(args.outname)
 
 if args.f2path == False:
-	comando1 = bwa+'bwa mem -R "@RG\\tID:test\\tSM:bar" -t 8 ' + reference + ' ' + fasq1 + " " + ">" + name + ".sam"
+	comando1 = bwa+'bwa mem --R "@RG\\tID:test\\tSM:bar"'+' -t ' + str(args.threads) + " " + reference + ' ' + fasq1 + " " + ">" + name + ".sam"
 else:
-	comando1 = bwa+'bwa mem -R "@RG\\tID:test\\tSM:bar" -t 8 ' + reference + ' ' + fasq1 + " " + fasq2 + " >" + name + ".sam"
+	comando1 = bwa+'bwa mem -R "@RG\\tID:" -t ' + str(args.threads) + " " + reference + ' ' + fasq1 + " " + fasq2 + " >" + name + ".sam"
 os.system(comando1)
 
 comando2 = samtools+"samtools view -Sb " + name + ".sam >" + name + ".bam"
 os.system(comando2)
 
-comando3 = samtools+"samtools sort " + name + ".bam -T " + name + " >" + name + ".sorted.bam"
+comando3 = samtools+"samtools sort " + name + ".bam " + name + " >" + name + ".sorted.bam"
 os.system(comando3)
 
 comando4 = samtools+"samtools index " + name + ".sorted.bam"
 os.system(comando4)
-
-print "..."
-print "..."	 
 		
