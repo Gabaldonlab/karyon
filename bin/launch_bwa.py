@@ -35,7 +35,7 @@ os.system(comando1)
 comando2 = samtools+"samtools view -Sb " + name + ".sam >" + name + ".bam"
 os.system(comando2)
 
-comando3 = samtools+"samtools sort " + name + ".bam " + name + " >" + name + ".sorted.bam"
+comando3 = samtools+"samtools sort " + name + ".bam " + name + ".sorted.bam"
 os.system(comando3)
 
 comando4 = samtools+"samtools index " + name + ".sorted.bam"

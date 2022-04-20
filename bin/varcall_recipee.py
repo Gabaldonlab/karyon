@@ -119,7 +119,6 @@ def var_call(fastq, config_dict, output, name, favourite, home, memory, nodes, r
 		if len(config_dict["samtools"]) > 0:
 			bash_job.write(" -S "+config_dict["samtools"][0])
 		bash_job.write(" \n\n")
-	bash_job.write(config_dict["samtools"][0]+"samtools index "+locspp+'.sorted.bam\n')
 	bash_job.write(config_dict["samtools"][0]+"samtools faidx "+locspp+'.fasta\n')
 	bash_job.write(config_dict["GATK"][0] + " --java-options -Xmx"+memory+"G HaplotypeCaller -R "+locspp+'.fasta -I '+locspp+'.sorted.bam -O '+locspp+'.raw.vcf\n\n')
 	bash_job.write(config_dict["bcftools"][0]+"bcftools mpileup --fasta-ref " + locspp + ".fasta " + config_dict["bcftools"][1]+" "+locspp+'.sorted.bam > '+locspp+'.mpileup\n')
