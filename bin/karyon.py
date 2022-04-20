@@ -134,7 +134,7 @@ def main():
 	
 	path_tmp_jobid = os.path.join(home, "tmp", job_ID)
 	if not os.path.exists(os.path.join(home, "tmp")):
-		os.mkdir(os.path.join(home, "tmp"))
+		os.makedirs(os.path.join(home, "tmp"))
 	prepared_libs = os.path.join(path_tmp_jobid, "prepared_libraries.txt")
 
 	###Checks that the output is not a file. If it does not exist, it creates it.###
@@ -143,12 +143,12 @@ def main():
 			message = "Path is a file" #Should raise an exception an exit the program
 			exit_program(message)
 		else:
-			os.mkdir(args.output_directory)
+			os.makedirs(args.output_directory)
 	elif args.try_again == False:
 		os.rmdir(args.output_directory)
-		os.mkdir(args.output_directory)
+		os.makedirs(args.output_directory)
 	
-	os.mkdir(path_tmp_jobid)
+	os.makedirs(path_tmp_jobid)
 
 
 	from karyonplots import katplot, allplots
@@ -330,7 +330,7 @@ def main():
 				vcf = i+"raw.vcf"
 		return vcf, bam, mpileup
 
-	os.mkdir(true_output+"Report/")
+	os.makedirs(true_output+"Report/")
 	if args.no_varcall == False:
 		from karyonplots import katplot, allplots
 		from report import report, ploidy_veredict
