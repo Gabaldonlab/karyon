@@ -27,17 +27,21 @@ reference = str(args.ref)
 name = str(args.outname)
 
 if args.f2path == False:
-	comando1 = bwa+'bwa mem --R "@RG\\tID:test\\tSM:bar"'+' -t ' + str(args.threads) + " " + reference + ' ' + fasq1 + " " + ">" + name + ".sam"
+	comando1 = bwa+'bwa mem -R "@RG\\tID:test\\tSM:bar"'+' -t ' + str(args.threads) + " " + reference + ' ' + fasq1 + " " + ">" + name + ".sam"
 else:
-	comando1 = bwa+'bwa mem -R "@RG\\tID:" -t ' + str(args.threads) + " " + reference + ' ' + fasq1 + " " + fasq2 + " >" + name + ".sam"
+	comando1 = bwa+'bwa mem -R "@RG\\tID:test\\tSM:bar"'+' -t ' +  str(args.threads) + " " + reference + ' ' + fasq1 + " " + fasq2 + " >" + name + ".sam"
+print(comando1)
 os.system(comando1)
 
 comando2 = samtools+"samtools view -Sb " + name + ".sam >" + name + ".bam"
+print(comando2)
 os.system(comando2)
 
 comando3 = samtools+"samtools sort " + name + ".bam " + name + ".sorted"
+print(comando3)
 os.system(comando3)
 
 comando4 = samtools+"samtools index " + name + ".sorted.bam"
+print(comando4)
 os.system(comando4)
 		
