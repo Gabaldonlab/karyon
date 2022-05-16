@@ -98,9 +98,11 @@ def extract_pileup_data (pileup_file, window_size, lendict, scafminsize, scafmax
 					for i in range(1, int((int(chunk[1])-curr_pos)//window_size)):
 						cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 				curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+				res = max(line, key = len)
+				coverage.append(int(chunk[3]))
 			else:
-				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+				res = max(line, key = len)
+				coverage.append(int(chunk[3]))
 	pileup_file.seek(0)
 	return cov_dict
 
@@ -152,9 +154,9 @@ def cov_plot(pileup, window_size, output, lendict, scafminsize, scafmaxsize):
 					for i in range(1, int((int(chunk[1])-curr_pos)//window_size)):
 						cov_dict[curr_scaffold+"_"+str(curr_pos+(i*window_size))] = 0
 				curr_pos = curr_pos + (window_size*((int(chunk[1])-curr_pos)/window_size))
-				coverage = [int(line[line.find("DP=")+3:].split(";")[0])]
+				coverage = [int(chunk[3])]
 			else: 
-				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+				coverage.append(int(chunk[3]))
 	data = []
 	meanlist = []
 	for element in cov_dict:
@@ -275,16 +277,16 @@ def cov_v_len(pileup, fastainput, output):
 			if curr_scaffold == '':
 				curr_scaffold = chunk[0]
 				coverage = []
-				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+				coverage.append(int(chunk[3]))
 				continue
 			else:
 				curr_scaffold = chunk[0]
 				y.append(np.mean(coverage))
 				x.append(len(fastainput.get_raw(chunk[0]).decode()))
 				coverage = []
-				coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+				coverage.append(int(chunk[3]))
 		else: 
-			coverage.append(int(line[line.find("DP=")+3:].split(";")[0]))
+			coverage.append(int(chunk[3]))
 	plt.plot(x,y, '.')
 	ax = plt.subplot()
 	ax.set_xscale("log", nonposx='clip')
@@ -501,8 +503,11 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	os.system("tabix -p vcf "+ vcf+".gz")
 	vcf_file = open(vcf, 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
-	if os.path.isdir(kitchen) == False:
-		os.mkdir(kitchen)
+	if os.path.exists(kitchen) == False:
+		if os.path.exists(kitchen[:kitchen.rfind("/")]) == False:
+			os.makedirs(kitchen[:kitchen.rfind("/")])
+			if os.path.exists(kitchen) == False:
+				os.makedirs(kitchen)
 	lendict = {}
 	fastainput = SeqIO.index(fasta_file, "fasta")
 	for i in fastainput:

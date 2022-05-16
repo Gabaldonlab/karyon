@@ -46,6 +46,11 @@ args = parser.parse_args()
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits): 
 	return ''.join(random.choice(chars) for _ in range(size))
 
+if args.temporary[-1] != "/":
+	args.temporary = args.temporary + "/"
+	if os.path.isdir(args.temporary) == False:
+		os.makedirs(args.temporary)
+
 ###Parses the config file in order to check the parameters of all the programs.###
 def parse_config(config):
 	config_dict = {}
@@ -343,7 +348,7 @@ def main():
 			os.path.abspath(champion[-1]), 
 			config_dict['nQuire'][0], 
 			config_dict["KAT"][0], 
-			args.temporary + "/"+job_ID+"/", 
+			args.temporary +job_ID+"/", 
 			true_output+"Report/", 
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
