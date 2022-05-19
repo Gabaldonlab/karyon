@@ -123,6 +123,7 @@ def main():
 	###Sets the job ID and the prefix name for the job. If job ID is not user defined, it produces a random 6 character string. If prefix name is not defined, it uses job ID### 
 	job_ID = args.job_id if args.job_id else id_generator()
 	name = args.output_name if args.output_name else job_ID
+	name = name[name.rfind("/")+1:]
 
 	print ('###############')
 	print ('Config. path: '+str(config_path))

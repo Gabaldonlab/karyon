@@ -57,8 +57,8 @@ def parse_config(config):
 			config_dict[prev][2] = line[1:-1] + " "
 	return config_dict
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits): 
-	return ''.join(random.choice(chars) for _ in range(size))
+def id_generator(fastainput):
+	return(fastainput[fastainput.rfind("/")+1:fastainput.rfind(".")])	 
 	
 config_path = args.configuration
 if not args.configuration:
@@ -72,17 +72,16 @@ counter = int(args.max_scaf2plot)
 window_size=int(args.window_size)
 step=window_size/2
 
-true_output = os.path.abspath(args.output_directory)
 cwd = os.path.abspath(os.getcwd())
 os.chdir(true_output)
 
 os.system("bgzip -c "+ args.vcf + " > " + args.vcf + ".gz")
 os.system("tabix -p vcf "+ args.vcf+".gz")
-#vcf_file = pysam.VariantFile(args.vcf+".gz", 'r')
 bam_file = pysam.AlignmentFile(args.bam, 'rb')
 home = config_dict["karyon"][0]
-job_ID = args.job_id if args.job_id else id_generator()
+job_ID = args.job_id if args.job_id else id_generator(args.fasta)
 name = args.output_name if args.output_name else job_ID
+name = name[name.rfind("/")+1:]
 kitchen = home + "tmp/"+job_ID
 
 lendict = {}
