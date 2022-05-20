@@ -516,14 +516,14 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	df = window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot)
 	if no_plot == False:
 		pass
-		scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
-		scaffold_len_log(fasta_file, window_size, fastainput, newpath)
-		var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
-		cov_v_len(mpileup, fastainput, newpath)
-		katplot(fasta_file, library, KAT, newpath)
+		#scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
+		#scaffold_len_log(fasta_file, window_size, fastainput, newpath)
+		#var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		#cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		#fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		#fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
+		#cov_v_len(mpileup, fastainput, newpath)
+		#katplot(fasta_file, library, KAT, newpath)
 	return(df)
 	
 	
