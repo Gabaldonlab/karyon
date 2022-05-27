@@ -19,7 +19,7 @@ python2 -m ensurepip --no-default-pip
 #Installing conda and pip dependencies
 
 
-conda install -c bioconda -y biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam sra-tools gatk4 kat busco=5.2.2 picard soapdenovo2 bwa bcftools trimmomatic
+conda install -c bioconda -y biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam sra-tools gatk4 kat busco=5.2.2 picard soapdenovo2 bwa bcftools trimmomatic samtools
 pip3 install biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 #Installing other dpendencies
@@ -34,6 +34,7 @@ apt-get -y install samtools
 
 mkdir dependencies
 cd dependencies
+chmod 777 dependencies
 dep_folder=`pwd`
 
 #Installins SPADes
