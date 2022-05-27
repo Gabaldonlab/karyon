@@ -50,16 +50,22 @@ def get_flagstat(flagstat):
 			prop_paired = float(line.split("(")[-1].split("%")[0])
 	return mapped, prop_paired
 	
-def report(true_output, name, df, no_reduction, no_red_assembly, window_size, mybusco, noredbusco):
+def report(true_output, name, df, no_reduction, no_red_assembly, window_size, mybusco, noredbusco, fasta):
 	true_output = os.path.abspath(true_output)
+	location = true_output + name
 	if true_output[-1] != "/":
 		true_output=true_output+"/"
 	print("wololo", true_output, name)
-	report = open(true_output+name+"/Report/report.txt", "w")
-	#fastats = fasta_stats([true_output+name+".fasta"])
-	fastats = FastaIndex(true_output+name+".fasta").stats()
-	nQlist = get_nQuire(true_output+name+".lrdtest")
-	mapped, prop_paired = get_flagstat(true_output+name+".flagstat")
+	if os.path.exists(true_output+"Report/") == False:
+		os.mkdir(true_output+"Report/")
+	report = open(true_output+"Report/report.txt", "w")
+	if fasta == False:
+		fastats = FastaIndex(location+".fasta").stats()
+	else:
+		fastats = FastaIndex(fasta).stats()
+		location = fasta[:fasta.rfind("/")+1]
+	nQlist = get_nQuire(location+name+".lrdtest")
+	mapped, prop_paired = get_flagstat(location+name+".flagstat")
 	report.write("###GLOBAL STATS###\n")
 	report.write("Scaffolds:\t"+str(fastats[1])+"\n")
 	report.write("Assembly size:\t"+str(fastats[2])+"\n")
@@ -86,9 +92,9 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 			report.write("Values before reduction: C: "+str(noredbuscoval[0])+", SC: "+str(noredbuscoval[1])+", D: "+str(+noredbuscoval[2])+", F:"+str(noredbuscoval[3])+", M: "+str(noredbuscoval[4])+"\n")
 			if buscoval[0]/noredbuscoval[0] < 0.9:
 				report.write("WARNING: Reduction has caused loss of information, based on BUSCO values before and after reduction.\n")
-		if os.path.isdir(true_output+name+"no_reduc_busco") == True and name+"no_reduc.busco" not in os.listdir(true_output):
+		if os.path.isdir(location+"no_reduc_busco") == True and name+"no_reduc.busco" not in os.listdir(true_output):
 			report.write("WARNING: Busco evaluation for the non-reduced assembly seems to have failed.")
-	if os.path.isdir(true_output+name+"_busco") == True and name+".busco" not in os.listdir(true_output):
+	if os.path.isdir(location+"_busco") == True and name+".busco" not in os.listdir(true_output):
 		report.write("WARNING: Busco evaluation seems to have failed.")
 	#report.write("BUSCO (prokaryotic) scores:")
 	report.write("\n")
@@ -130,7 +136,10 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 	report.write("Diploid regions have an average of "+str(df.loc[df["ploidy"] == 2].SNPs.mean()/window_size)+"% of variant loci\n")
 	report.write("\n")
 	report.write("###Per scaffold analysis###\n")
-	fastadict = SeqIO.index(true_output+name+".fasta", "fasta")
+	if fasta == False:
+		fastadict = SeqIO.index(location+".fasta", "fasta")
+	else:
+		fastadict = SeqIO.index(fasta, "fasta")
 	for entry in fastadict:
 		contigdata = df.loc[df["contig"]==fastadict[entry].id]
 		nwindows = len(contigdata.count())

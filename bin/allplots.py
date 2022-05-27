@@ -22,7 +22,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('-f', '--fasta', required=True, help="fasta file used as input")
 	parser.add_argument('-d', '--output_directory', default="./", help='Directory where all the output files will be generated.')
-	parser.add_argument('-o', '--output_name', required=False, help="Output prefix")
+	parser.add_argument('-o', '--output_name', required=False, help="Output prefix. If ommited it will be inferred from the fasta file.")
 	parser.add_argument('-v', '--vcf', required=True, help="VCF file used as input")
 	parser.add_argument('-p', '--pileup', required=True, help="Mpileup file used as input")
 	parser.add_argument('-b', '--bam', required=True, help="Bam file used as input")
@@ -91,6 +91,7 @@ for i in fastainput:
 
 from karyonplots import katplot, allplots
 from report import report, ploidy_veredict
+
 df = allplots(window_size, 
 				args.vcf, 
 				args.fasta, 
@@ -107,7 +108,7 @@ df = allplots(window_size,
 	 			args.scafmaxsize, False)
 
 df2 = ploidy_veredict(df, true_output, name, window_size)
-report(true_output, name, df2, True, False, window_size, False, False)
+report(true_output, name, df2, True, False, window_size, False, False, args.fasta)
 df2.to_csv(true_output+"/Report/"+name+".csv", index=False)
 os.chdir(cwd)	
 

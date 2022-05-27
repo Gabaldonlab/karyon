@@ -312,6 +312,8 @@ def main():
 			if noredubusco != False:
 				copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
 				noredubusco = true_output+name+"_no_reduc.busco"
+	else:
+		mybusco = False
 	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
@@ -371,7 +373,7 @@ def main():
 			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
 	
 	df2 = ploidy_veredict(df, true_output, name, args.window_size)
-	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.window_size, mybusco, noredubusco)
+	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.window_size, mybusco, noredubusco, False)
 	df2.to_csv(true_output+"Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###
