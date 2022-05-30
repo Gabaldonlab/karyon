@@ -287,8 +287,8 @@ def main():
 	os.system ("bash "+true_output+name+"_karyon.job")
 	counter = int(args.max_scaf2plot)
 	
+	from shutil import copyfile
 	if args.no_busco != True:
-		from shutil import copyfile
 		mybusco = False
 		for i in os.listdir(true_output+name+"_busco"):
 			if i.find("specific") > -1:
