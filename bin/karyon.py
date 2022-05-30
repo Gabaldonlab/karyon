@@ -314,6 +314,11 @@ def main():
 				noredubusco = true_output+name+"_no_reduc.busco"
 	else:
 		mybusco = False
+		if args.no_reduction != True:
+			noredubusco = False
+		else:
+			copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
+			noredubusco = true_output+name+"_no_reduc.busco"
 	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
