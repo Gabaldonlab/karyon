@@ -331,6 +331,7 @@ def ttest_ploidy(number_list):
 
 def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot):
 	N, dfbatch = 0, []
+	step = int(step)
 	vcf_file = pysam.VariantFile(vcf+".gz", 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	vcfset = set()
@@ -349,7 +350,6 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			cov_list = [[],[]]
 			while n+step <= end:
 				cov_list[0].append(n+step/2)
-				print(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())
 				a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
 				if len(a) == 0:
 					cov_list[1].append(0.0)
