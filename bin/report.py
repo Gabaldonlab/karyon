@@ -155,7 +155,8 @@ def ploidy_veredict(df, true_output, name, window_size):
 	hap25, hap75 = np.quantile(hap_normal, 0.25), np.quantile(hap_normal, 0.75)
 	tetra25, tetra75 = np.quantile(tetra_normal, 0.25), np.quantile(tetra_normal, 0.75)
 	for i in range(0, len(df)):
-		if df["mean_cov"][i] > hap25 and df["mean_cov"][i] < hap75 and (df["SNPs"][i])/window_size <= 0.005:
+		print(df["SNPs"][i].astype(float), type(df["SNPs"][i]), df["SNPs"][i], "khñifihycludutdfikfli")
+		if df["mean_cov"][i] > hap25 and df["mean_cov"][i] < hap75 and (float(df["SNPs"][i]))/float(window_size) <= 0.005:
 			df.at[i, "ploidy"] = 1
 		elif df["diplo_score"][i] != np.NAN:
 			if df["mean_cov"][i] > tetra25 and df["mean_cov"][i] < tetra75 and df["tetra_score"][i] > df["diplo_score"][i] and df["tetra_score"][i] > df["triplo_score"][i]:

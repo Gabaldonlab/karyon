@@ -26,7 +26,7 @@ parser.add_argument('-g', '--genome_assembler', default="platanus", choices=['di
 parser.add_argument('-T', '--no_trimming', action='store_true', default=False, help='If this tag is active, the program will skip the trimming step.')
 parser.add_argument('-A', '--no_assembly', default=False, help='If this tag is active it will skip the assembly step. It requires a reference assembly.')
 parser.add_argument('-R', '--no_reduction', action='store_true', default=False, help='If this tag is active, the program will not launch the reduction step of redundans. Remember that the step is used to perform many downstream analyses. If you skip it, the analyses may not make much sense.')
-parser.add_argument('-V', '--no_varcall', nargs='+', default=False, help="If this tag is active, the program will skip the variant calling step. Many downstream analyses require this and won't be possible if you skip it.")
+parser.add_argument('-V', '--no_varcall', default=False, help="If this tag is active, the program will skip the variant calling step and use instead the results of a previous run. Needs to provide a directory containing a pervious Karyon run. Many downstream analyses require this and won't be possible if you skip it.")
 parser.add_argument('-B', '--no_busco', default=False, action='store_true', help='If this tag is active, BUSCO analysis will be ommited.')
 parser.add_argument('-P', '--no_plot', action='store_true', default=False, help="If this tag is active, the program will omit the plots at the end of the the variant calling step.")
 parser.add_argument('-w', '--window_size', default=1000, help='Window size used for some of the analyses. Default is 1000 (1Kb)')
@@ -270,13 +270,13 @@ def main():
 		karyonjobfile.write("\n")
 		karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
-		#karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
+		karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
 		karyonjobfile.write("rm -r busco_downloads\n")
 		if args.no_reduction == False:
 			karyonjobfile.write("\n")
 			karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
 			karyonjobfile.write("mv " + name + "_no_reduc " + true_output+name+"_no_reduc_busco\n")
-			#karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
+			karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
 			karyonjobfile.write("rm -r busco_downloads\n")
 			
 	karyonjobfile.close()
@@ -313,40 +313,26 @@ def main():
 				copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
 				noredubusco = true_output+name+"_no_reduc.busco"
 	else:
-		mybusco = False
-		if args.no_reduction != True:
-			noredubusco = False
-		else:
-			copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
-			noredubusco = true_output+name+"_no_reduc.busco"
+		mybusco, noredbusco = False, False
 	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
-		for i in no_varcall:
-			if i[-4:] == ".bam":
-				bam = i
-			if os.path.isfile(i+".bam") == True:
-				bam = i+".bam"
-			if os.path.isfile(i+".sorted.bam") == True:
-				bam = i+".sorted.bam"
-			if i.find("pileup") > -1:
-				mpileup = i
-			if os.path.isfile(i+".mpileup") == True:
-				mpileup = i+".mpileup"
-			if os.path.isfile(i+".pileup") == True:
-				mpileup = i+".pileup"
+		path = os.path.abspath(no_varcall)
+		if path[-1] != "/":
+			path = path + "/"
+		for i in os.listdir(path):
+			if i[-11:] == ".sorted.bam":
+				bam = path+i
+			if i[-8:] == ".mpileup":
+				mpileup = path+i
 			if i[-4:] == ".vcf":
-				vcf = i
-			if os.path.isfile(i+".vcf") == True:
-				vcf = i+".vcf"
-			if os.path.isfile(i+"raw.vcf") == True:
-				vcf = i+"raw.vcf"
+				vcf = path+i
 		return vcf, bam, mpileup
 
 	os.makedirs(true_output+"Report/")
+	from karyonplots import katplot, allplots
+	from report import report, ploidy_veredict
 	if args.no_varcall == False:
-		from karyonplots import katplot, allplots
-		from report import report, ploidy_veredict
 		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 		df = allplots(int(args.window_size), 
 			true_output+name+".raw.vcf", 
@@ -361,7 +347,6 @@ def main():
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
 	else:
-		from karyonplots import katplot, allplots
 		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
 		df = allplots(int(args.window_size), 
@@ -375,7 +360,7 @@ def main():
 			args.temporary+"/"+job_ID+"/", 
 			true_output, 
 			counter, 
-			job_ID, name, args.scafminsize, args.scafmaxsize, df, args.no_plot)
+			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
 	
 	df2 = ploidy_veredict(df, true_output, name, args.window_size)
 	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.window_size, mybusco, noredubusco, False)

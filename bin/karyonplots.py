@@ -349,12 +349,14 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			cov_list = [[],[]]
 			while n+step <= end:
 				cov_list[0].append(n+step/2)
+				print(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split())
 				a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
 				if len(a) == 0:
-					cov_list.append(0.0)
+					cov_list[1].append(0.0)
 				else:
-					cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()[-1]))
+					cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n+1)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
+
 			if no_plot == True:
 				nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
 			window_stats = []
@@ -408,7 +410,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 	all_refalt_list, pos_list = [], []
 	for i in value_list:
 		if i[2] > 0:
-			name = i[0].split(":")[0]
+			name = i[0].split(":")[0].replace("|", "_")
 			if scafminsize != False and lendict[name] <= scafminsize: continue
 			elif scafmaxsize != False and lendict[name] >= scafminsize: continue
 			else:
@@ -512,18 +514,17 @@ def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, k
 	fastainput = SeqIO.index(fasta_file, "fasta")
 	for i in fastainput:
 		lendict[i] = len(fastainput.get_raw(i).decode())
-	step = window_size/2
+	step = int(window_size/2)
 	df = window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot)
 	if no_plot == False:
-		pass
-		#scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
-		#scaffold_len_log(fasta_file, window_size, fastainput, newpath)
-		#var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		#cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		#fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
-		#fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
-		#cov_v_len(mpileup, fastainput, newpath)
-		#katplot(fasta_file, library, KAT, newpath)
+		scaffold_len_lin(fasta_file, window_size, fastainput, newpath)
+		scaffold_len_log(fasta_file, window_size, fastainput, newpath)
+		var_v_cov(vcf, mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		cov_plot(mpileup, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		fair_coin_global(vcf, window_size, newpath, lendict, scafminsize, scafmaxsize)
+		fair_coin_scaff(vcf, window_size, counter, newpath, lendict, scafminsize, scafmaxsize)
+		cov_v_len(mpileup, fastainput, newpath)
+		katplot(fasta_file, library, KAT, newpath)
 	return(df)
 	
 	
