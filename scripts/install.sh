@@ -20,7 +20,7 @@ echo ""
 
 SELF="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 mkdir ../tmp
-
+echo "$SELF"
 # sleep
 echo "I'll proceed with installation in 2 seconds... Press Ctrl-C to cancel."
 sleep 2s
@@ -74,30 +74,20 @@ if [ ! -z $error ]; then
         echo "\nAborted due to missing dependencies (see above)!"
         return 1;
     else
-        sh install.dependencies.sh
+        echo "Installing"
+        bash $SELF/install.dependencies.sh
     fi
 fi
 
-# check python version
-
-PyVer=`python --version 2>&1 | cut -f2 -d" " | cut -f-2 -d"."`
-if [ $PyVer != "2.7" ] && [ $PyVer != "2.6" ]; then 
-    echo ""
-    echo "[ERROR] Install Python 2.7!"
-    echo "If you have Python 2.7 already installed, you can either "
-    echo "make an alias before installation and use of Redundans ('alias python=python2.7' should do)"
-    echo "or use Python virtual environment (https://virtualenv.pypa.io)."
-    return 1
-fi
 echo " Everything looks good :) Let's proceed..."
 sleep 2s
 
 pwd=`pwd`
 init_path="$(pwd)";
 
-'''
-Dependencies versions
-'''
+
+#Dependencies versions
+
 GATK_VERSION=4.1.9.0
 SPAdes_VERSION=3.9.0
 HTSLIB_VERSION=1.9
@@ -109,94 +99,90 @@ PICARD_VERSION=1.78
 
 
 echo " Creating dependencies folder..."
-mkdir dependencies
-cd $SELF/dependencies
-
+mkdir $SELF/../dependencies
+cd $SELF/../dependencies
+echo "#############################"
 echo " Installing basic software..."
+echo "#############################"
 apt-get install -y software-properties-common
 apt-get install -y build-essential
 
-CONDACHECK=`conda list | wc -l`
-if [ $CONDACHECK < 2 ]; then
-    echo "Installing Bioconda"
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-    bash ~/miniconda.sh -b -p ~/miniconda 
-    rm ~/miniconda.sh
-    export PATH="$PATH:/root/miniconda/bin"
-    echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
-    source ~/.bashrc
-    conda config --add channels defaults
-    conda config --add channels bioconda
-    conda config --add channels conda-forge
-    echo "Bioconda OK"
-    sleep 2s
-    echo "Installing Bioconda"
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh
-    bash ~/miniconda.sh -b -p ~/miniconda 
-    rm ~/miniconda.sh
-    export PATH="$PATH:/root/miniconda/bin"
-    echo 'alias conda="/root/miniconda/bin/conda"' >> ~/.bashrc
-    source ~/.bashrc
-    echo "Bioconda OK"
-    sleep 2s
-            fi
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
+echo "####################"
+echo "Installing Redundans"
+echo "####################"
+conda env create -f $SELF/redundans_env.yml
 
-echo "Installing Python packages"
-conda install -y biopython 
-conda install -y matplotlib 
-conda install -y ipython
-conda install -y jupyter
-conda install -y pandas
-conda install -y sympy
-conda install -y nose
-conda install -y seaborn
-conda install -y psutil
-conda install -y pysam
-conda install -c bioconda -y sra-tools
-conda install -c bioconda gatk4
-pip3 install  biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
-echo "Installing KAT"
-conda install -y kat
-CONDAPATH=`which conda`
-CONDASITE=$(echo "$CONDAPATH" | sed "s/\/conda//")
-echo "alias kat=$CONDASITE/kat" >> ~/.bashrc
-source ~/.bashrc
-
+echo "#################"
 echo "Installing BUSCO"
-conda install -y busco=5.2.2
+echo "#################"
+conda env create -f $SELF/busco_env.yml
 
+echo "####################"
+echo "Installing SRA-tools"
+echo "####################"
+wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.10.0/sratoolkit.2.10.0-ubuntu64.tar.gz -O /tmp/sratoolkit.tar.gz \
+	&& tar zxvf /tmp/sratoolkit.tar.gz -C /opt/ && rm /tmp/sratoolkit.tar.gz
+PATH="/opt/sratoolkit.2.10.0-ubuntu64/bin/:${PATH}"
+
+
+echo "###############"
+echo "Installing KAT"
+echo "###############"
+git clone https://github.com/TGAC/KAT.git
+cd KAT
+./build_boost.sh
+./autogen.sh
+./configure
+make install
+cd ..
+echo "################"
+echo "Installing BUSCO"
+echo "################"
+conda env create -f $SELF/busco_env
+
+echo "###################"
 echo " Installing Java..."
+echo "###################"
 add-apt-repository -y ppa:webupd8team/java
 apt-get update
 echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
 echo debconf shared/accepted-oracle-license-v1-1 seen true | debconf-set-selections
 apt-get install -y --force-yes oracle-java8-installer
 
-#echo "Installing GATK..."
-#wget https://github.com/broadinstitute/gatk/releases/download/$GATK_VERSION/gatk-$GATK_VERSION.zip
-#unzip gatk-$GATK_VERSION.zip
+echo "###################"
+echo "Installing GATK..."
+echo "###################"
+wget https://github.com/broadinstitute/gatk/releases/download/$GATK_VERSION/gatk-$GATK_VERSION.zip
+unzip gatk-$GATK_VERSION.zip
 
+echo "#####################"
 echo "Installing SOAPdeNovo"
+echo "#####################"
 wget https://downloads.sourceforge.net/project/soapdenovo2/SOAPdenovo2/bin/r240/SOAPdenovo2-bin-LINUX-generic-r240.tgz
 tar -xvf SOAPdenovo2-bin-LINUX-generic-r240.tgz
 
+echo "##################"
 echo "Installing SPAdes"
+echo "##################"
 wget https://github.com/ablab/spades/releases/download/v$SPAdes_VERSION/SPAdes-$SPAdes_VERSION-Linux.tar.gz
 tar -xvf SPAdes-$SPAdes_VERSION-Linux.tar.gz
 
+echo "######################"
 echo "Installing Trimmomatic"
+echo "######################"
 wget http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-$TRIMMOMATIC_VERSION.zip
 unzip Trimmomatic-$TRIMMOMATIC_VERSION.zip
 
+echo "#######################"
 echo "Installing Picard-tools"
+echo "#######################"
 wget https://downloads.sourceforge.net/project/picard/picard-tools/$PICARD_VERSION/picard-tools-$PICARD_VERSION.zip
 unzip picard-tools-$PICARD_VERSION.zip
 
+echo "##################"
 echo "Installing nQuire"
+echo "##################"
 git clone --recursive https://github.com/clwgg/nQuire.git
 chmod 777 nQuire
 cd nQuire
@@ -204,8 +190,11 @@ make submodules
 make
 cd ..
 
+echo "###########################################"
 echo "Installing Samtools, Bcftools and Htslib..."
+echo "###########################################"
 apt-get update
+apt-get install -y libz-dev
 apt-get install -y libbz2-dev
 apt-get install -y bzip2
 apt-get install -y zlib1g-dev
@@ -231,17 +220,15 @@ cd bcftools-1.9
 make
 cd ..
 
+echo "###############"
 echo "Installing BWA"
+echo "###############"
 wget https://github.com/lh3/bwa/releases/download/v0.7.15/bwa-0.7.15.tar.bz2
 tar -vxjf bwa-0.7.15.tar.bz2
 cd bwa-0.7.15
 make 
 cd ..
 
-echo "Installing Redundans"
-git clone --recursive https://github.com/lpryszcz/redundans.git
-cd redundans && bin/.compile.sh
-cd ..
 
 
 rm ./*.bz2
@@ -263,7 +250,7 @@ PATH="$dep_folder/bwa-0.7.15/:${PATH}"
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --redundans "$SELF/dependencies/redundans/" --BWA "$dep_folder/bwa-0.7.15/" --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output "$SELF/../configuration.txt"
+python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --BWA "$dep_folder/bwa-0.7.15/" --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --KAT "$dep_folder/KAT/" --GATK "$dep_folder/gatk-$GATK_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --output "$SELF/../configuration.txt"
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
