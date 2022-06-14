@@ -52,20 +52,18 @@ def get_flagstat(flagstat):
 	
 def report(true_output, name, df, no_reduction, no_red_assembly, window_size, mybusco, noredbusco, fasta):
 	true_output = os.path.abspath(true_output)
-	location = true_output + name
 	if true_output[-1] != "/":
 		true_output=true_output+"/"
-	print("wololo", true_output, name)
+	location = true_output + name
 	if os.path.exists(true_output+"Report/") == False:
 		os.mkdir(true_output+"Report/")
 	report = open(true_output+"Report/report.txt", "w")
 	if fasta == False:
-		fastats = FastaIndex(location+".fasta").stats()
+		fastats = FastaIndex(location+".fa").stats()
 	else:
 		fastats = FastaIndex(fasta).stats()
-		location = fasta[:fasta.rfind("/")+1]
-	nQlist = get_nQuire(location+name+".lrdtest")
-	mapped, prop_paired = get_flagstat(location+name+".flagstat")
+	nQlist = get_nQuire(location+".lrdtest")
+	mapped, prop_paired = get_flagstat(location+".flagstat")
 	report.write("###GLOBAL STATS###\n")
 	report.write("Scaffolds:\t"+str(fastats[1])+"\n")
 	report.write("Assembly size:\t"+str(fastats[2])+"\n")
@@ -147,7 +145,7 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 			if len(contigdata.loc[contigdata["ploidy"] == i])/nwindows > 0.5 and i != b.index(max(b[1:])):
 				report.write("Scaffold " + fastadict[entry].id + ", with a length of " + str(len(fastadict[entry].seq))+ "base pairs, has a " + str(100*(len(contigdata.loc[contigdata["ploidy"] == i])/nwindows)) + "% of windows that are " + ploid_dict[i].lower() + ".\n")
 
-def ploidy_veredict(df, true_output, name, window_size):
+def ploidy_veredict(df, true_output, window_size):
 	b = df.loc[df.diplo_score != np.NAN] 
 	a = b.loc[b.diplo_score > b.triplo_score].loc[b.diplo_score > b.triplo_score].loc[:,"mean_cov"]
 	empir_mean, empir_stdev = np.mean(a), np.std(a)
@@ -155,7 +153,6 @@ def ploidy_veredict(df, true_output, name, window_size):
 	hap25, hap75 = np.quantile(hap_normal, 0.25), np.quantile(hap_normal, 0.75)
 	tetra25, tetra75 = np.quantile(tetra_normal, 0.25), np.quantile(tetra_normal, 0.75)
 	for i in range(0, len(df)):
-		print(df["SNPs"][i].astype(float), type(df["SNPs"][i]), df["SNPs"][i], "khñifihycludutdfikfli")
 		if df["mean_cov"][i] > hap25 and df["mean_cov"][i] < hap75 and (float(df["SNPs"][i]))/float(window_size) <= 0.005:
 			df.at[i, "ploidy"] = 1
 		elif df["diplo_score"][i] != np.NAN:

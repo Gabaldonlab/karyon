@@ -3,7 +3,7 @@ desc="""Karyon pipeline.
 More info at: https://github.com/Gabaldonlab/karyon
 """
 epilog="""Author: Miguel A. Naranjo-Ortiz (miguelangelnaranjoortiz@gmail.com) Worcester MA, 04/Nov/2021"""
-import sys, os, re
+import sys, os, re, shutil
 import argparse
 import psutil
 import pysam
@@ -247,15 +247,15 @@ def main():
 		elif args.genome_assembler == "soapdenovo" or args.genome_assembler == "SOAPdenovo":
 			from soap_recipee import soap_recipee
 			soap_recipee(prepared_libs, name, true_output+"soapdenovo/", config_dict['SOAPdeNovo'][1], karyonjobfile, config_dict['SOAPdeNovo'][0])
-			print ("python3 "+os.path.dirname(__file__)+"/soap_recipee.py -r "+prepared_libs+" -n "+name+" -o "+true_output+"soapdenovo "+ "-j "+true_output+name+"_karyon.job")
 			os.system("python3 "+os.path.dirname(__file__)+"/soap_recipee.py -r "+prepared_libs+" -n "+name+" -o "+true_output+"soapdenovo "+ "-j "+true_output+name+"_karyon.job")
 			assembly = true_output+"soapdenovo/"+name+".scafSeq"
 			no_red_assembly = true_output+"soapdenovo/"+name+".scafSeq"
 		else:
 			pass
 	else:
-		no_red_assembly = args.no_assembly
-		assembly = args.no_assembly
+		shutil.copyfile(os.path.abspath(args.no_assembly), true_output+name+".fa")
+		no_red_assembly = os.path.abspath(args.no_assembly)
+		assembly = os.path.abspath(args.no_assembly)
 	if args.no_reduction == False and switch == False:
 		karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 		reduced_assembly = true_output+"redundans_output/scaffolds.filled.fa"
@@ -313,7 +313,7 @@ def main():
 				copyfile(true_output+name+"_no_reduc_busco/"+noredubusco, true_output+name+"_no_reduc.busco")
 				noredubusco = true_output+name+"_no_reduc.busco"
 	else:
-		mybusco, noredbusco = False, False
+		mybusco, noredubusco = False, False
 	
 	def parse_no_varcall(no_varcall):
 		vcf, bam, mpileup = '', '', ''
@@ -347,23 +347,31 @@ def main():
 			counter, 
 			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
 	else:
-		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
-		df = allplots(int(args.window_size), 
-			vcf, 
-			reduced_assembly, 
-			bam, 
-			mpileup, 
-			os.path.abspath(champion[-1]), 
-			config_dict['nQuire'][0], 
-			config_dict["KAT"][0], 
-			args.temporary+"/"+job_ID+"/", 
-			true_output, 
-			counter, 
-			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
+		os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
+		os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
+		os.system(config_dict["samtools"][0]+"samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
+		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
+	df = allplots(int(args.window_size), 
+		vcf, 
+		reduced_assembly, 
+		bam, 
+		mpileup, 
+		os.path.abspath(champion[-1]), 
+		config_dict['nQuire'][0], 
+		config_dict["KAT"][0], 
+		args.temporary+"/"+job_ID+"/", 
+		true_output+"Report/", 
+		counter, 
+		job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
 	
-	df2 = ploidy_veredict(df, true_output, name, args.window_size)
-	report(true_output, name, df2, args.no_reduction, no_red_assembly, args.window_size, mybusco, noredubusco, False)
+	df2 = ploidy_veredict(df, true_output, args.window_size)
+	report_busco, report_fasta = False, False
+	if args.no_reduction == False:
+		report_busco = noredubusco
+	if args.no_varcall == False:
+		report_fasta = assembly
+	report(true_output, name, df2, args.no_reduction, assembly, args.window_size, mybusco, report_busco, report_fasta)
 	df2.to_csv(true_output+"Report/report"+name+".csv", index=False)
 
 	###We clean the tmp directory###
@@ -374,13 +382,18 @@ def main():
 	print ("Now I'm cleaning tmp...")
 	if args.keep_tmp == True:
 		print ("...but keeping what you told me...")
-	for e in os.listdir(args.temporary + "/"):
-		for i in os.listdir(args.temporary + "/"):
-			if '_keep_existing_' in os.listdir(args.temporary + "/"+e): continue
-			else:
-				os.remove(args.temporary + "/"+e+"/"+i)
-		if '_keep_existing_' in os.listdir(args.temporary + "/"+e): continue
-		else: os.rmdir(args.temporary + "/"+e)
+	if args.temporary[-1] != "/":
+		temp = args.temporary + "/"
+	else:
+		temp = args.temporary
+	for e in os.listdir(temp):
+		if os.path.isdir(temp+e):
+			for i in os.listdir(temp + e):
+				if '_keep_existing_' in os.listdir(temp +e): continue
+				else:
+					os.remove(args.temporary +e+"/"+i)
+		if '_keep_existing_' in os.listdir(temp +e): continue
+		else: os.rmdir(temp +e)
 	if args.keep_tmp == True:
 		print ("... tmp files havee been kept")
 	else:	

@@ -402,7 +402,6 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			N = N+1
 		vcf_file.seek(0)
 	df = pd.concat(dfbatch, ignore_index=True)
-	print(df, len(df))
 	return(df)
 
 def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsize, scafmaxsize):
@@ -490,7 +489,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	cmd = KAT+"kat comp -o "+out[:-1]+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
+	cmd = KAT+"kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)
@@ -500,7 +499,9 @@ def katplot(fasta, library, KAT, out):
 def allplots(window_size, vcf, fasta_file, bam, mpileup, library, nQuire, KAT, kitchen, newpath, counter, kitchenID, out_name, scafminsize, scafmaxsize, no_plot):
 	if out_name==False:
 		outname = ''
-	newpath = newpath+"/"+out_name
+	if newpath[-1] != "/":
+		newpath = newpath + "/"
+	newpath = newpath+out_name
 	os.system("bgzip -c "+ vcf+ " > " + vcf + ".gz")
 	os.system("tabix -p vcf "+ vcf+".gz")
 	vcf_file = open(vcf, 'r')

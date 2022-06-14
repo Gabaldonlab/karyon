@@ -1,6 +1,6 @@
 #!/bin/python
 import sys, os, re, subprocess, math
-import argparse
+import argparse, shutil
 import psutil
 from pysam import pysam
 from Bio import SeqIO
@@ -92,6 +92,12 @@ for i in fastainput:
 from karyonplots import katplot, allplots
 from report import report, ploidy_veredict
 
+shutil.copyfile(os.path.abspath(args.fasta), true_output+name+".fa")
+if os.path.exists(true_output+name+".lrdtest") == False:
+	os.system(config_dict["nQuire"][0]+" create -b "+ args.bam+' -o '+true_output+name+' -x')
+	os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest')
+	os.system(config_dict["samtools"][0]+"samtools flagstat "+true_output+name+'.sorted.bam > '+true_output+name+'.flagstat')
+
 df = allplots(window_size, 
 				args.vcf, 
 				args.fasta, 
@@ -107,8 +113,8 @@ df = allplots(window_size,
 	 			args.scafminsize,
 	 			args.scafmaxsize, False)
 
-df2 = ploidy_veredict(df, true_output, name, window_size)
-report(true_output, name, df2, True, False, window_size, False, False, args.fasta)
+df2 = ploidy_veredict(df, true_output, window_size)
+report(true_output, name, df2, True, False, window_size, False, False, true_output+name+".fa")
 df2.to_csv(true_output+"/Report/"+name+".csv", index=False)
 os.chdir(cwd)	
 
