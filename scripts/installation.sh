@@ -12,10 +12,6 @@ BWA_VERSION=0.7.15
 TRIMMOMATIC_VERSION=0.36
 PICARD_VERSION=1.78
 
-#Install python and pip
-dnf install python python2 pip
-python2 -m ensurepip --no-default-pip
-
 #Installing conda and pip dependencies
 conda activate
 conda install -y -c bioconda biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam sra-tools y kat busco=5.2.2 picard soapdenovo2 bwa bcftools trimmomatic samtools
@@ -79,7 +75,6 @@ wget https://downloads.sourceforge.net/project/picard/picard-tools/$PICARD_VERSI
 unzip picard-tools-$PICARD_VERSION.zip
 
 cd ..
-
 
 python3 "$SELF/../bin/create_config.py" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --karyon "$SELF/../" --redundans "$SELF/dependencies/redundans/" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --redundans "$SELF/dependencies/redundans/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --output "$SELF/../configuration.txt"
 
