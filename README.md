@@ -52,7 +52,7 @@ docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/k
 # Install all the necessary dependencies inside the running container. First run interactively the container
 docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
-cd /root/src/karyon/shared/karyon/
+cd /root/src/karyon/shared/
 # Run the dependency installation script
 bash scripts/install.sh
 ```
@@ -68,7 +68,7 @@ docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/k
 # Install all the necessary dependencies inside the running container. First run interactively the container
 docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
-cd /root/src/karyon/shared/karyon/
+cd /root/src/karyon/shared/
 # Run the dependency installation script
 bash scripts/install.sh
 ```
