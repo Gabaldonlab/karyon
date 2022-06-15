@@ -12,32 +12,32 @@
 
 
 +karyon
-@/work/manaranjo/karyon/
+@/work/manaranjo/karyon/karyon/
 +redundans
-@/work/manaranjo/karyon/scripts/dependencies/redundans/
+@
 +BWA
 
-@
+@/work/manaranjo/karyon/karyon/dependencies/bwa-0.7.15/
 +GATK
-@gatk
+@/work/manaranjo/karyon/karyon/dependencies/gatk-4.1.9.0/gatk
 +samtools
-@
+@/work/manaranjo/karyon/karyon/dependencies/samtools-1.9/
 +bcftools
-@
+@/work/manaranjo/karyon/karyon/dependencies/bcftools-1.9/
 +picard-tools
-@/work/manaranjo/karyon/scripts/dependencies/picard-tools-1.78/
+@/work/manaranjo/karyon/karyon/dependencies/picard-tools-1.78/
 +SPAdes
-@/work/manaranjo/karyon/scripts/dependencies/SPAdes-3.9.0-Linux/
+@/work/manaranjo/karyon/karyon/dependencies/SPAdes-3.9.0-Linux/
 +KAT
-@
+@/work/manaranjo/karyon/karyon/dependencies/KAT
 +nQuire
-@/work/manaranjo/karyon/scripts/dependencies/nQuire/nQuire
+@/work/manaranjo/karyon/karyon/dependencies/nQuire/nQuire
 +SOAPdeNovo
-@/work/manaranjo/karyon/scripts/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
+@/work/manaranjo/karyon/karyon/dependencies/SOAPdenovo2-bin-LINUX-generic-r240/SOAPdenovo-127mer
 > -K 63
 > -R
 +trimmomatic
-@/work/manaranjo/karyon/scripts/dependencies/Trimmomatic-0.36/
+@/work/manaranjo/karyon/karyon/dependencies/Trimmomatic-0.36/
 +BUSCO
 @
 > --auto-lineage-euk

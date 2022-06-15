@@ -240,7 +240,7 @@ def main():
 				assembly = true_output+name+"_gapClosed.fa"
 			else:
 				karyonjobfile.write(config_dict['redundans'][0]+"bin/platanus assemble -o "+true_output+name+" -f "+libstring+ "\n")
-				karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -f "+true_output+name+"_contig.fa -t "+str(n_nodes)+" "+config_dict["redundans"][1]+ "\n")
+				karyonjobfile.write("conda run -n redundans_env redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -f "+true_output+name+"_contig.fa -t "+str(n_nodes)+" "+config_dict["redundans"][1]+ "\n")
 				no_red_assembly = true_output+"redundans_output/contigs.fa"
 				assembly = true_output+"redundans_output/scaffolds.filled.fa"
 			switch = True
@@ -268,13 +268,13 @@ def main():
 		for i in config_dict['BUSCO'][1:]:
 			busco_options = busco_options + " " + i[:-1]
 		karyonjobfile.write("\n")
-		karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
+		karyonjobfile.write("conda run -n busco_env busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
 		karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
 		karyonjobfile.write("rm -r busco_downloads\n")
 		if args.no_reduction == False:
 			karyonjobfile.write("\n")
-			karyonjobfile.write(config_dict['BUSCO'][0]+"busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
+			karyonjobfile.write("conda run -n busco_env busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
 			karyonjobfile.write("mv " + name + "_no_reduc " + true_output+name+"_no_reduc_busco\n")
 			karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
 			karyonjobfile.write("rm -r busco_downloads\n")
@@ -350,7 +350,7 @@ def main():
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
 		os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
 		os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
-		os.system(config_dict["samtools"][0]+"samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
+		os.system(config_dict["samtools"][0]+" samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
 		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 	df = allplots(int(args.window_size), 
 		vcf, 

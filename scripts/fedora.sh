@@ -41,12 +41,23 @@ wget https://downloads.sourceforge.net/project/soapdenovo2/SOAPdenovo2/bin/r240/
 tar -xvf SOAPdenovo2-bin-LINUX-generic-r240.tgz
 
 #Installing Redundans
+#echo "Installing Redundans"
+#dnf install wget curl git perl gcc g++ ldconfig
+#pip2 install matplotlib numpy
+#git clone --recursive https://github.com/lpryszcz/redundans.git
+#cd redundans && bin/.compile.sh
+#cd ..
+
+echo "####################"
 echo "Installing Redundans"
-dnf install wget curl git perl gcc g++ ldconfig
-pip2 install matplotlib numpy
-git clone --recursive https://github.com/lpryszcz/redundans.git
-cd redundans && bin/.compile.sh
-cd ..
+echo "####################"
+conda env create -f $SELF/redundans_env.yml
+
+
+echo "#################"
+echo "Installing BUSCO"
+echo "#################"
+conda env create -f $SELF/busco_env.yml
 
 #Installing nQuire
 echo "Installing nQuire"
