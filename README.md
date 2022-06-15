@@ -83,4 +83,4 @@ Please, check the [manual](https://github.com/Gabaldonlab/karyon/edit/master/Kar
 * **Toni Gabaldón** - *Intellectual design & validation* - [tgabaldon](https://github.com/tgabaldon)
 
 ## License 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the GNU General Public License - see the [LICENSE.md](LICENSE.md) file for details.
