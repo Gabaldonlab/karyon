@@ -61,7 +61,16 @@ bash scripts/install.sh
 
 Pull `gabaldonlab/karyon` from the Docker repository:
 ```Shell
+# First pull the image
 docker pull cgenomics/karyon
+#  Start the container and indicate a volume and a container name
+docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyonpip:1.0
+# Install all the necessary dependencies inside the running container. First run interactively the container
+docker exec -it karyon bash
+# Changing dir to the karyon volume in the container where the Dockerfile is located
+cd /root/src/karyon/shared/karyon/
+# Run the dependency installation script
+bash scripts/install.sh
 ```
 ## Manual
 
