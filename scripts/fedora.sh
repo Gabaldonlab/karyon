@@ -44,15 +44,15 @@ tar -xvf SOAPdenovo2-bin-LINUX-generic-r240.tgz
 #echo "Installing Redundans"
 #dnf install wget curl git perl gcc g++ ldconfig
 #pip2 install matplotlib numpy
-#git clone --recursive https://github.com/lpryszcz/redundans.git
-#cd redundans && bin/.compile.sh
-#cd ..
+#
 
 echo "####################"
 echo "Installing Redundans"
 echo "####################"
 conda env create -f $SELF/redundans_env.yml
-
+git clone --recursive https://github.com/lpryszcz/redundans.git
+#cd redundans && bin/.compile.sh
+#cd ..
 
 echo "#################"
 echo "Installing BUSCO"
