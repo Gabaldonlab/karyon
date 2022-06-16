@@ -131,8 +131,7 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 	report.write("Percent of tetraploid windows:\t"+b[4]+"%\n")
 	report.write("Percent of unassigned windows:\t"+b[0]+"%\n")
 	report.write("Main ploidy is:\t"+ploid_dict[b.index(max(b))]+"\n")
-	print(df.loc[df["ploidy"] == 2].SNPs.mean(), window_size, "wololo")
-	report.write("Diploid regions have an average of "+str(df.loc[df["ploidy"] == 2].SNPs.mean()/window_size)+"% of variant loci\n")
+	report.write("Diploid regions have an average of "+str(df.loc[df["ploidy"] == 2].SNPs.mean()/float(window_size))+"% of variant loci\n")
 	report.write("\n")
 	report.write("###Per scaffold analysis###\n")
 	if fasta == False:

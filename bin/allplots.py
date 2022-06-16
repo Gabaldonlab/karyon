@@ -96,6 +96,7 @@ shutil.copyfile(os.path.abspath(args.fasta), true_output+name+".fa")
 if os.path.exists(true_output+name+".lrdtest") == False:
 	os.system(config_dict["nQuire"][0]+" create -b "+ args.bam+' -o '+true_output+name+' -x')
 	os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest')
+if os.path.exists(true_output+name+".flagstat") == False:
 	os.system(config_dict["samtools"][0]+"samtools flagstat "+ args.bam + '> '+true_output+name+'.flagstat')
 
 df = allplots(window_size, 

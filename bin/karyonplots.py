@@ -289,8 +289,8 @@ def cov_v_len(pileup, fastainput, output):
 			coverage.append(int(chunk[3]))
 	plt.plot(x,y, '.')
 	ax = plt.subplot()
-	ax.set_xscale("log", nonposx='clip')
-	ax.set_yscale("log", nonposy='clip')
+	ax.set_xscale("log", nonpositive='clip')
+	ax.set_yscale("log", nonpositive='clip')
 	plt.xlabel('Scaffold length')
 	plt.ylabel('Average coverage')
 	plt.savefig(output+'_len_v_cov.png')
@@ -489,7 +489,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	cmd = KAT+"kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
+	cmd = "conda run -n redundans_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)
