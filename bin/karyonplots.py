@@ -332,6 +332,7 @@ def ttest_ploidy(number_list):
 def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newpath, counter, lendict, scafminsize, scafmaxsize, no_plot):
 	N, dfbatch = 0, []
 	step = int(step)
+	bam_df = pd.DataFrame([x.split('\t') for x in pysam.depth(bam).split('\n')])
 	vcf_file = pysam.VariantFile(vcf+".gz", 'r')
 	bam_file = pysam.AlignmentFile(bam, 'rb')
 	vcfset = set()
@@ -350,11 +351,13 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			cov_list = [[],[]]
 			while n+step <= end:
 				cov_list[0].append(n+step/2)
-				a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
-				if len(a) == 0:
-					cov_list[1].append(0.0)
-				else:
-					cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n+1)+"-"+str(n+step), bam).split()[-1]))
+				mask = bam_df[bam_df[0] == record.name][2][n:n+step].astype(int)
+				cov_list.append(mask.mean())
+				#a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
+				#if len(a) == 0:
+				#	cov_list[1].append(0.0)
+				#else:
+				#	cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n+1)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
 
 			if no_plot == True:
