@@ -333,25 +333,13 @@ def main():
 	from karyonplots import katplot, allplots
 	from report import report, ploidy_veredict
 	if args.no_varcall == False:
-		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
-		df = allplots(int(args.window_size), 
-			true_output+name+".raw.vcf", 
-			reduced_assembly, 
-			true_output+name+".sorted.bam", 
-			true_output+name+".mpileup", 
-			os.path.abspath(champion[-1]), 
-			config_dict['nQuire'][0], 
-			config_dict["KAT"][0], 
-			args.temporary +job_ID+"/", 
-			true_output+"Report/", 
-			counter, 
-			job_ID, name, args.scafminsize, args.scafmaxsize, args.no_plot)
+		vcf, bam, mpileup = true_output+name+".raw.vcf", true_output+name+".sorted.bam", true_output+name+".mpileup"
 	else:
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
-		os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
-		os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
-		os.system(config_dict["samtools"][0]+" samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
-		katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
+	os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
+	os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
+	os.system(config_dict["samtools"][0]+" samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
+	katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
 	df = allplots(int(args.window_size), 
 		vcf, 
 		reduced_assembly, 

@@ -360,7 +360,7 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 				#	cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n+1)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
 
-			if no_plot == True:
+			if no_plot == False:
 				nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
 			window_stats = []
 		if prev_record_name == False:

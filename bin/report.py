@@ -72,8 +72,8 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 		report.write("WARNING: GC content is very low!\n")
 	if fastats[3] > 65:
 		report.write("WARNING: GC content is very high!\n")
-	report.write("Scaffolds > 1000bp:\t"+str(fastats[4])+"\n")
-	report.write("Length of scaffolds > 1000bp:\t"+str(fastats[5])+"\n")
+	report.write("Scaffolds > 1000bp: \t"+str(fastats[4])+"\n")
+	report.write("Length of scaffolds > 1000bp: \t"+str(fastats[5])+"\n")
 	report.write("N50:\t"+str(fastats[6])+"\n")
 	report.write("N90:\t"+str(fastats[7])+"\n")
 	if mybusco != False:
@@ -108,7 +108,7 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 		report.write("\n###REDUCTION STATS###\n")
 		report.write("Scaffolds: From " + str(redustats[1])+" to "+str(fastats[1])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
 		report.write("Assembly size: From " + str(redustats[2])+" to "+ str(fastats[2]) + " (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
-		report.write("Scaffolds > 1000bp:: From " + str(redustats[4])+" to "+ str(fastats[4])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
+		report.write("Scaffolds > 1000bp: From " + str(redustats[4])+" to "+ str(fastats[4])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
 		report.write("Length of scaffolds > 1000bp:: From " + str(redustats[5])+" to "+str(fastats[5])+" (" +str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
 		report.write("N50: From " + str(redustats[6])+" to " + str(fastats[6])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
 		report.write("N90: From " + str(redustats[7])+" to " + str(fastats[7])+" (" + str(100*(redustats[1]-fastats[1])/redustats[1])+"%)\n")
@@ -135,15 +135,15 @@ def report(true_output, name, df, no_reduction, no_red_assembly, window_size, my
 	report.write("\n")
 	report.write("###Per scaffold analysis###\n")
 	if fasta == False:
-		fastadict = SeqIO.index(location+".fasta", "fasta")
+		fastadict = SeqIO.index(location+".fa", "fasta")
 	else:
 		fastadict = SeqIO.index(fasta, "fasta")
 	for entry in fastadict:
 		contigdata = df.loc[df["contig"]==fastadict[entry].id]
 		nwindows = len(contigdata.count())
 		for i in range(1,4):
-			if len(contigdata.loc[contigdata["ploidy"] == i])/nwindows > 0.5 and i != b.index(max(b[1:])):
-				report.write("Scaffold " + fastadict[entry].id + ", with a length of " + str(len(fastadict[entry].seq))+ "base pairs, has a " + str(100*(len(contigdata.loc[contigdata["ploidy"] == i])/nwindows)) + "% of windows that are " + ploid_dict[i].lower() + ".\n")
+			if len(contigdata.loc[contigdata["ploidy"] == i].count())/nwindows > 0.5 and i != b.index(max(b[1:])):
+				report.write("Scaffold " + fastadict[entry].id + ", with a length of " + str(len(fastadict[entry].seq))+ " base pairs, has a " + str(100*(len(contigdata.loc[contigdata["ploidy"] == i].count())/nwindows)) + " % of windows that are " + ploid_dict[i].lower() + ".\n")
 
 def ploidy_veredict(df, true_output, window_size):
 	b = df.loc[df.diplo_score != np.NAN] 
