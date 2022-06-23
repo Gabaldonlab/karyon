@@ -352,7 +352,7 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 			while n+step <= end:
 				cov_list[0].append(n+step/2)
 				mask = bam_df[bam_df[0] == record.name][2][n:n+step].astype(int)
-				cov_list.append(mask.mean())
+				cov_list[1].append(mask.mean())
 				#a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
 				#if len(a) == 0:
 				#	cov_list[1].append(0.0)
