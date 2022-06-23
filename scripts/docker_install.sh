@@ -25,6 +25,10 @@ echo "$SELF"
 echo "I'll proceed with installation in 2 seconds... Press Ctrl-C to cancel."
 sleep 2s
 
+#echo "Changing the python interpreter"
+#rm -f /usr/bin/python3 && ln -s /usr/bin/python3.6 /usr/bin/python3
+#echo "Done"
+
 echo ""
 echo `date` "Checking dependencies..."
 
@@ -39,7 +43,7 @@ for cmd in echo awk git wget unzip tar nano gcc g++ make cd ln date ldconfig unz
     if ! exists $cmd; then
         case $cmd in        
             "pip")
-                echo "Install pip first (ie. 'sudo apt-get install python-pip2')!"  
+                echo "Install pip first (ie. 'sudo apt-get install python-pip3')!"  
                 ;;
             *)
                 echo "Install $cmd first (ie. 'sudo apt-get install $cmd')!"
@@ -101,11 +105,14 @@ PICARD_VERSION=1.78
 echo " Creating dependencies folder..."
 mkdir $SELF/../dependencies
 cd $SELF/../dependencies
-echo "#############################"
-echo " Installing basic software..."
-echo "#############################"
-apt-get install -y software-properties-common
-apt-get install -y build-essential
+
+echo "####################"
+echo "Installing SRA tools"
+echo "####################"
+
+wget --output-document sratoolkit.tar.gz https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/3.0.0/sratoolkit.3.0.0-ubuntu64.tar.gz
+tar -vxzf sratoolkit.tar.gz
+export PATH=$PATH:$PWD/sratoolkit.3.0.0-ubuntu64/bin >> ~/.bashrc
 
 echo "####################"
 echo "Installing Redundans"
@@ -118,28 +125,15 @@ echo "Installing BUSCO"
 echo "#################"
 conda env create -f $SELF/busco_env.yml
 
-echo "####################"
-echo "Installing SRA-tools"
-echo "####################"
-wget https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.10.0/sratoolkit.2.10.0-ubuntu64.tar.gz -O /tmp/sratoolkit.tar.gz \
-	&& tar zxvf /tmp/sratoolkit.tar.gz -C /opt/ && rm /tmp/sratoolkit.tar.gz
-PATH="/opt/sratoolkit.2.10.0-ubuntu64/bin/:${PATH}"
-
-
-echo "###############"
-echo "Installing KAT"
-echo "###############"
-git clone https://github.com/TGAC/KAT.git
-cd KAT
-./build_boost.sh
-./autogen.sh
-./configure
-make install
-cd ..
-echo "################"
-echo "Installing BUSCO"
-echo "################"
-conda env create -f $SELF/busco_env
+#echo "###############"
+#echo "Installing KAT"
+#echo "###############"
+#git clone https://github.com/TGAC/KAT.git
+#cd KAT
+#./build_boost.sh
+#./autogen.sh
+#./configure
+#make install
 
 echo "###################"
 echo " Installing Java..."
@@ -167,7 +161,7 @@ echo "Installing SPAdes"
 echo "##################"
 wget https://github.com/ablab/spades/releases/download/v$SPAdes_VERSION/SPAdes-$SPAdes_VERSION-Linux.tar.gz
 tar -xvf SPAdes-$SPAdes_VERSION-Linux.tar.gz
-
+export PATH=$PATH:$PWD/SPAdes-$SPAdes_VERSION-Linux/bin >> ~/.bashrc
 echo "######################"
 echo "Installing Trimmomatic"
 echo "######################"
@@ -189,6 +183,7 @@ cd nQuire
 make submodules
 make
 cd ..
+
 
 echo "###########################################"
 echo "Installing Samtools, Bcftools and Htslib..."
@@ -243,9 +238,9 @@ cd dependencies
 
 dep_folder=`pwd`
 #PATH="$CONDASITE:${PATH}"
-PATH="$dep_folder/samtools-1.9/:${PATH}"
-PATH="$dep_folder/bcftools-1.9/:${PATH}"
-PATH="$dep_folder/bwa-0.7.15/:${PATH}"
+export PATH=$PWD/samtools-1.9/:${PATH} >> ~/.bashrc
+export PATH=$PWD/bcftools-1.9/:${PATH} >> ~/.bashrc
+export PATH=$PWD/bwa-0.7.15/:${PATH} >> ~/.bashrc
 
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
