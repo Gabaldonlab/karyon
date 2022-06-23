@@ -47,8 +47,8 @@ echo "Installing Redundans"
 echo "####################"
 conda env create -f $SELF/redundans_env.yml
 git clone --recursive https://github.com/lpryszcz/redundans.git
-#cd redundans && bin/.compile.sh
-#cd ..
+cd redundans && bin/.compile.sh
+cd ..
 
 echo "#################"
 echo "Installing BUSCO"
