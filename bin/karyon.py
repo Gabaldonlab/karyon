@@ -233,13 +233,13 @@ def main():
 			no_red_assembly = true_output+"spades/scaffolds.fasta"
 		elif args.genome_assembler == "platanus" or args.genome_assembler == "Platanus":
 			if args.no_reduction == True:
-				karyonjobfile.write(config_dict['redundans'][0]+"bin/platanus assemble -o "+true_output+name+" -f "+libstring+ "\n")
-				karyonjobfile.write(config_dict['redundans'][0]+"bin/platanus scaffold -o "+true_output+name+" -c "+true_output+name+"_contig.fa -b "+true_output+name+"_contigBubble.fa"+" -IP "+libstring + "\n")
-				karyonjobfile.write(config_dict['redundans'][0]+"bin/platanus gap_close -o "+true_output+name+" -c "+true_output+name+"_scaffold.fa -IP "+libstring + "\n")
+				karyonjobfile.write(config_dict['Platanus'][0]+"bin/platanus assemble -o "+true_output+name+" -f "+libstring+ "\n")
+				karyonjobfile.write(config_dict['Platanus'][0]+"bin/platanus scaffold -o "+true_output+name+" -c "+true_output+name+"_contig.fa -b "+true_output+name+"_contigBubble.fa"+" -IP "+libstring + "\n")
+				karyonjobfile.write(config_dict['Platanus'][0]+"bin/platanus gap_close -o "+true_output+name+" -c "+true_output+name+"_scaffold.fa -IP "+libstring + "\n")
 				no_red_assembly = true_output+name+".fa"
 				assembly = true_output+name+"_gapClosed.fa"
 			else:
-				karyonjobfile.write(config_dict['redundans'][0]+"bin/platanus assemble -o "+true_output+name+" -f "+libstring+ "\n")
+				karyonjobfile.write(config_dict['Platanus'][0]+"bin/platanus assemble -o "+true_output+name+" -f "+libstring+ "\n")
 				karyonjobfile.write("conda run -n redundans_env redundans.py"+ " -o "+true_output+"redundans_output -i "+libstring+" -f "+true_output+name+"_contig.fa -t "+str(n_nodes)+" "+config_dict["redundans"][1]+ "\n")
 				no_red_assembly = true_output+"redundans_output/contigs.fa"
 				assembly = true_output+"redundans_output/scaffolds.filled.fa"

@@ -43,3 +43,5 @@
 > --auto-lineage-euk
 > -m geno
 > -f 
++Platanus
+@/work/manaranjo/karyon/karyon/scripts/dependencies/platanus-1.2.4/

@@ -196,8 +196,8 @@ def fair_coin_global(vcf, window_size, output, lendict, scafminsize, scafmaxsize
 						binomial_list.append(numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1])))	
 	#print (scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0))
 	bins = numpy.linspace(0, 1, 100)
-	sns.distplot(binomial_list, bins, label='exp')
-	sns.distplot(value_list, bins, label='obs')
+	sns.displot(binomial_list, bins, label='exp')
+	sns.displot(value_list, bins, label='obs')
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -248,8 +248,8 @@ def fair_coin_scaff(vcf, window_size, counter, output, lendict, scafminsize, sca
 		bins = numpy.linspace(0, 1, 10000)
 	for value in value_dict:
 		if len(value_dict[value]) > 0:
-			sns.distplot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)	
-	sns.distplot(binomial_sublist, bins, hist=False, label='exp', color="Maroon")
+			sns.displot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)	
+	sns.displot(binomial_sublist, bins, hist=False, label='exp', color="Maroon")
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -492,7 +492,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	cmd = "conda run -n redundans_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
+	cmd = "conda run -n kat_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)

@@ -43,12 +43,21 @@ tar -xvf SOAPdenovo2-bin-LINUX-generic-r240.tgz
 #
 
 echo "####################"
+echo "Installing Platanus"
+echo "####################"
+mkdir platanus-1.2.4
+mkdir platanus-1.2.4/bin
+cd platanus-1.2.4/bin
+wget -O- http://platanus.bio.titech.ac.jp/?ddownload=145 > platanus && chmod +x platanus
+cd $SELF/../dependencies
+
+echo "####################"
 echo "Installing Redundans"
 echo "####################"
 conda env create -f $SELF/redundans_env.yml
-git clone --recursive https://github.com/lpryszcz/redundans.git
-cd redundans && bin/.compile.sh
-cd ..
+#git clone --recursive https://github.com/lpryszcz/redundans.git
+#cd redundans && bin/.compile.sh
+#cd ..
 
 echo "#################"
 echo "Installing BUSCO"
@@ -76,5 +85,5 @@ unzip picard-tools-$PICARD_VERSION.zip
 
 cd ..
 
-python3 "$SELF/../bin/create_config.py" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --karyon "$SELF/../" --redundans "$SELF/dependencies/redundans/" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --redundans "$SELF/dependencies/redundans/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --output "$SELF/../configuration.txt"
+python3 "$SELF/../bin/create_config.py" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --karyon "$SELF/../" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --redundans "$SELF/dependencies/redundans/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --Platanus "$SELF/dependencies/platanus-1.2.4/" --output "$SELF/../configuration.txt"
 
