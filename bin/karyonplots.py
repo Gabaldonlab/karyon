@@ -487,6 +487,8 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
+	cmd = "conda run -n redundans_env kat comp -o "+out+" "+library+" "+fasta#+" > "+out[:-1]+".katreport"
+	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	cmd = "conda run -n redundans_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')

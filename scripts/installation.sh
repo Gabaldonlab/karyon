@@ -18,8 +18,8 @@ conda install -y -c bioconda biopython matplotlib ipython jupyter pandas sympy n
 pip3 install biopython matplotlib ipython jupyter pandas sympy nose seaborn psutil pysam
 
 #Installing other dpendencies
-dnf -y groupinstall "Development Tools" "Development Libraries"
-dnf -y install samtools
+#dnf -y groupinstall "Development Tools" "Development Libraries"
+#dnf -y install samtools
 
 mkdir dependencies
 chmod 777 dependencies
