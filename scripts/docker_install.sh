@@ -130,7 +130,8 @@ echo "Installing Platanus"
 echo "####################"
 mkdir platanus-1.2.4
 mkdir platanus-1.2.4/bin
-cd mkdir platanus-1.2.4/bin
+cd mkdir platanus-1.2.4/
+cd bin/
 wget -O- http://platanus.bio.titech.ac.jp/?ddownload=145 > platanus && chmod +x platanus
 cd $SELF/../dependencies
 export PATH=$PATH:$PWD/platanus-1.2.4/bin/ >> ~/.bashrc
@@ -255,7 +256,7 @@ export PATH=$PWD/bwa-0.7.15/:${PATH} >> ~/.bashrc
 apt-get clean
 set -x; rm -rf /var/lib/apt/lists/*
 
-python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --BWA "$dep_folder/bwa-0.7.15/" --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --KAT "$dep_folder/KAT/" --GATK "$dep_folder/gatk-$GATK_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --platanus "$dep_folder/platanus-1.2.4/" --output "$SELF/../configuration.txt"
+python3 "$SELF/../bin/create_config.py" --karyon "$SELF/../" --BWA "$dep_folder/bwa-0.7.15/" --samtools "$dep_folder/samtools-1.9/" --bcftools "$dep_folder/bcftools-1.9/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --GATK "$dep_folder/gatk-$GATK_VERSION" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --platanus "$dep_folder/platanus-1.2.4/" --output "$SELF/../configuration.txt"
 
 echo `date` "Installation finished!"
 echo "##################################################################################################"
