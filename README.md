@@ -54,7 +54,7 @@ docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
 cd /root/src/karyon/shared/
 # Run the dependency installation script
-bash scripts/install.sh
+bash scripts/docker_install.sh
 ```
 
 * **Pull the docker image from Docker Hub**
@@ -70,7 +70,7 @@ docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
 cd /root/src/karyon/shared/
 # Run the dependency installation script
-bash scripts/install.sh
+bash scripts/docker_install.sh
 ```
 ## Manual
 
