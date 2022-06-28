@@ -194,10 +194,8 @@ def fair_coin_global(vcf, window_size, output, lendict, scafminsize, scafmaxsize
 					else:
 						value_list.append(float(values[1])/(int(values[0])+int(values[1])))
 						binomial_list.append(numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1])))	
-	#print (scipy.stats.chisquare(value_list, f_exp=binomial_list, ddof=0, axis=0))
-	bins = numpy.linspace(0, 1, 100)
-	sns.displot(binomial_list, bins, label='exp')
-	sns.displot(value_list, bins, label='obs')
+	sns.kdeplot(binomial_list, label='exp')
+	sns.kdeplot(value_list, label='obs')
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -239,17 +237,20 @@ def fair_coin_scaff(vcf, window_size, counter, output, lendict, scafminsize, sca
 					binomial_value = numpy.random.binomial(n=(int(values[0])+int(values[1])), p=0.5, size=None)/ (float(values[0])+int(values[1]))
 					binomial_list.append(binomial_value)
 
-	for i in value_dict:
-		size_list.append(len(value_dict[i]))
+	for e in value_dict:
+		size_list.append(len(value_dict[e]))
 		sampling = int(np.mean(size_list))
 		binomial_sublist = numpy.random.choice(binomial_list, size=sampling, replace=False)
 		for i in binomial_sublist:
 			binomial_altsublist.append(1-i)
 		bins = numpy.linspace(0, 1, 10000)
+	count = 0
 	for value in value_dict:
+		count = count + 1
+		if count >= counter: break
 		if len(value_dict[value]) > 0:
-			sns.displot(value_dict[value], bins, hist=False, color='RoyalBlue', norm_hist = True)	
-	sns.displot(binomial_sublist, bins, hist=False, label='exp', color="Maroon")
+			sns.kdeplot(value_dict[value], color='RoyalBlue')	
+	sns.kdeplot(binomial_sublist, label='exp', color="Maroon")
 	plt.axvline(x=0.5, color='black', linestyle='-', linewidth=2)
 	plt.axvline(x=0.33, color='black', linestyle='--', linewidth=2)
 	plt.axvline(x=0.66, color='black', linestyle='--', linewidth=2)
@@ -353,13 +354,7 @@ def window_walker(window_size, step, vcf, fasta_file, bam, nQuire, kitchen, newp
 				cov_list[0].append(n+step/2)
 				mask = bam_df[bam_df[0] == record.name][2][n:n+step].astype(int)
 				cov_list[1].append(mask.mean())
-				#a = pysam.depth("-aa", "-r", record.name+":"+str(n)+"-"+str(n+step), bam).split()
-				#if len(a) == 0:
-				#	cov_list[1].append(0.0)
-				#else:
-				#	cov_list[1].append(float(pysam.depth("-aa", "-r", record.name+":"+str(n+1)+"-"+str(n+step), bam).split()[-1]))
 				n = n + step
-
 			if no_plot == False:
 				nQuire_plot(window_stats, window_size, newpath, cov_list[0], cov_list[1], lendict, scafminsize, scafmaxsize)
 			window_stats = []
@@ -492,7 +487,7 @@ def nQuire_plot(value_list, window_size, newpath, xcov, ycov, lendict, scafminsi
 			plt.clf()	
 
 def katplot(fasta, library, KAT, out):
-	cmd = "conda run -n kat_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
+	cmd = "conda run -n redundans_env kat comp -o "+out+" "+library+" "+fasta+" > "+out[:-1]+".katreport"
 	returned_value = subprocess.call(cmd, shell=True)  # returns the exit code in unix
 	print ('###############')
 	print ('KAT:', returned_value)

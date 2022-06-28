@@ -83,6 +83,9 @@ echo "Installing Picard-Tools"
 wget https://downloads.sourceforge.net/project/picard/picard-tools/$PICARD_VERSION/picard-tools-$PICARD_VERSION.zip
 unzip picard-tools-$PICARD_VERSION.zip
 
+#Installing KAT
+conda env create -n kat_env kat
+
 cd ..
 
 python3 "$SELF/../bin/create_config.py" --trimmomatic "$dep_folder/Trimmomatic-$TRIMMOMATIC_VERSION/" --karyon "$SELF/../" --SPAdes "$dep_folder/SPAdes-$SPAdes_VERSION-Linux" --nQuire "$dep_folder/nQuire/" --SOAPdenovo "$dep_folder/SOAPdenovo2-bin-LINUX-generic-r240" --redundans "$SELF/dependencies/redundans/" --picardtools "$dep_folder/picard-tools-$PICARD_VERSION" --Platanus "$SELF/dependencies/platanus-1.2.4/" --output "$SELF/../configuration.txt"
