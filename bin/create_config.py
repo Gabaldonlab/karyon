@@ -15,7 +15,11 @@ if __name__ == '__main__':
 	parser.add_argument('--SOAPdenovo', default='')
 	parser.add_argument('--trimmomatic', default='')
 	parser.add_argument('--BUSCO', default='')
+<<<<<<< HEAD
 	parser.add_argument('--Platanus', default='')
+=======
+	parser.add_argument('--platanus', default='')
+>>>>>>> 51a88c400f6f697c6471911f3d2f1f29b54f90e0
 	parser.add_argument('-o', '--output')
 	args = parser.parse_args()
 	
@@ -107,10 +111,18 @@ config_file.write('> --auto-lineage-euk\n')
 config_file.write('> -m geno\n')
 config_file.write('> -f \n')
 
+<<<<<<< HEAD
 config_file.write('+Platanus\n')
 if args.trimmomatic == "":
 	config_file.write('@\n')
 else:
 	config_file.write('@'+ os.path.abspath(args.Platanus)+'/\n')
+=======
+config_file.write('+platanus\n')
+if args.platanus == "":
+	config_file.write('@\n')
+else:
+	config_file.write('@'+ os.path.abspath(args.platanus)+'/\n')
+
 
 config_file.close()
