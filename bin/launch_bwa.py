@@ -33,7 +33,7 @@ else:
 print(comando1)
 os.system(comando1)
 
-comando2 = samtools+"samtools view -Sb " + name + ".sam | "+samtools+"samtools sort -O BAM -o "+ name + ".sorted"
+comando2 = samtools+"samtools view -Sb " + name + ".sam | "+samtools+"samtools sort -O BAM -o "+ name + ".sorted.bam"
 print(comando2)
 os.system(comando2)
 
