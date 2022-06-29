@@ -130,7 +130,7 @@ echo "Installing Platanus"
 echo "####################"
 mkdir platanus-1.2.4
 mkdir platanus-1.2.4/bin
-cd mkdir platanus-1.2.4/
+cd platanus-1.2.4/
 cd bin/
 wget -O- http://platanus.bio.titech.ac.jp/?ddownload=145 > platanus && chmod +x platanus
 cd $SELF/../dependencies
