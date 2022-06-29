@@ -33,15 +33,12 @@ else:
 print(comando1)
 os.system(comando1)
 
-comando2 = samtools+"samtools view -Sb " + name + ".sam >" + name + ".bam"
+comando2 = samtools+"samtools view -Sb " + name + ".sam | "+samtools+"samtools sort -O BAM -o "+ name + ".sorted"
 print(comando2)
 os.system(comando2)
 
-comando3 = samtools+"samtools sort " + name + ".bam " + name + ".sorted"
+comando3 = samtools+"samtools index " + name + ".sorted.bam"
 print(comando3)
 os.system(comando3)
 
-comando4 = samtools+"samtools index " + name + ".sorted.bam"
-print(comando4)
-os.system(comando4)
 		
