@@ -257,7 +257,7 @@ def main():
 		no_red_assembly = os.path.abspath(args.no_assembly)
 		assembly = os.path.abspath(args.no_assembly)
 	if args.no_reduction == False and switch == False:
-		karyonjobfile.write("python2 "+config_dict['redundans'][0]+"redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
+		karyonjobfile.write("conda run -n redundans_env redundans.py"+" -f "+ assembly + " -o "+true_output+"redundans_output -i "+libstring+" -t "+str(n_nodes)+" "+config_dict["redundans"][1])
 		reduced_assembly = true_output+"redundans_output/scaffolds.filled.fa"
 	elif args.no_reduction == False and switch == True:
 		reduced_assembly = assembly
