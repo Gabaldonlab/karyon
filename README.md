@@ -12,9 +12,10 @@ Scripts contained in this repository:
 4) **varcall_recipee.py** -> Karyon dependency. It generates a file that launches all steps in the SNP calling pipeline.
 5) **karyonplots.py** -> Karyon dependency. It generates all the plots as part of the Karyon pipeline.
 6) **all_plots.py** -> Standalone version of karyonplots.py. It allows the user to input karyon results to generate the plots again.
-7) **Dockerfile** -> Docker file involved in building the image to run Karyon
-8) **install.sh** -> Bash script required to install the remaining dependencies in the dockerfile
-9) **redundans_env.yml & busco_env.yml** -> Conda environments in YAML format required to install some of the trickiest dependencies.
+7) **nQuire_plot.py** -> It allows the user to run the local ploidy plot alone.
+8) **Dockerfile** -> Docker file involved in building the image to run Karyon
+9) **install.sh** -> Bash script required to install the remaining dependencies in the dockerfile
+10) **redundans_env.yml & busco_env.yml** -> Conda environments in YAML format required to install some of the trickiest dependencies.
 
 ## How to install it
 
