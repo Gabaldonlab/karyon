@@ -31,8 +31,8 @@ Follow this steps
 git clonehttps://github.com/Gabaldonlab/karyon.git
 # Change to karyon/scripts directory
 cd karyon/scripts/
-# Then, dependingon your OS, you run the corresponding installer script. Currently Karyon issupported for Ubuntu and Fedora.
-bash fedora.sh
+# Then, run the installation script.
+bash installation.sh
 ```
 2. **Docker installation**
 
