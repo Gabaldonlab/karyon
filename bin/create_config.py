@@ -16,7 +16,6 @@ if __name__ == '__main__':
 	parser.add_argument('--trimmomatic', default='')
 	parser.add_argument('--BUSCO', default='')
 	parser.add_argument('--Platanus', default='')
-	parser.add_argument('--platanus', default='')
 	parser.add_argument('-o', '--output')
 	args = parser.parse_args()
 	
@@ -110,7 +109,7 @@ config_file.write('> -f \n')
 
 
 config_file.write('+Platanus\n')
-if args.trimmomatic == "":
+if args.Platanus == "":
 	config_file.write('@\n')
 else:
 	config_file.write('@'+ os.path.abspath(args.Platanus)+'/\n')
