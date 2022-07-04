@@ -47,7 +47,7 @@ In order to run this container you'll need docker installed. Need to get [starte
 
 ```Shell
 # From the karyon git directory
-docker build --no-cache -t cgenomics/karyonpip:1.0 .
+docker build --no-cache -t cgenomics/karyon:1.1 .
 # Start the container and indicate a volume and a container name
 docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyonpip:1.0
 # Install all the necessary dependencies inside the running container. First run interactively the container
@@ -73,6 +73,20 @@ cd /root/src/karyon/shared/
 # Run the dependency installation script
 bash scripts/docker_install.sh
 ```
+## Test dataset
+
+The test dataset is composed by two sequencing libraries from NCBI SRA corresponding to Lichtheimia ramosa B5399, one of the strains analyzed in the main publication. 
+```Shell
+# Execute interactively the docker container
+docker exec -it karyon bash
+# Configure SRA tools within the docker container
+~/src/karyon/shared/dependencies/sratoolkit.3.0.0-ubuntu64/bin/vdb-config --interactive
+# Download the SRA libraries at the desired location
+cd /root/src/karyon/shared/
+~/src/karyon/shared/dependencies/sratoolkit.3.0.0-ubuntu64/bin/fastq-dump --split-files SRR974799 SRR974800
+
+```
+
 ## Manual
 
 Please, check the [manual](https://github.com/Gabaldonlab/karyon/edit/master/Karyon_manual.pdf) for a comprehensive use of Karyon
