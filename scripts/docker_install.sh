@@ -1,7 +1,7 @@
 #!/bin/bash
 ###
-# Karyon installer for UNIX.
-# version 0.1a
+# Karyon dependencies installer for Docker.
+# version 1.1
 ###
 
 branch="master" 
@@ -11,7 +11,7 @@ echo "##########################################################################
 echo "#                                                                                                #"
 echo "#                                         Karyon installer                                       #"
 echo "#                                                                                                #"
-echo "#        version 0.1a                                             Miguel Angel Naranjo           #"
+echo "#        version 1.1                      Miguel Angel Naranjo & Diego Fuentes Palacios          #"
 echo "##################################################################################################"
 echo ""
 echo "Karyon and its dependencies will be installed in:" `pwd`/karyon
