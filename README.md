@@ -47,9 +47,9 @@ In order to run this container you'll need docker installed. Need to get [starte
 
 ```Shell
 # From the karyon git directory
-docker build --no-cache -t cgenomics/karyon:1.1 .
+docker build --no-cache -t cgenomics/karyon:1.2 .
 # Start the container and indicate a volume and a container name
-docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyonpip:1.0
+docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyon:1.2
 # Install all the necessary dependencies inside the running container. First run interactively the container
 docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
@@ -63,9 +63,9 @@ bash scripts/docker_install.sh
 Pull `gabaldonlab/karyon` from the Docker repository:
 ```Shell
 # First pull the image
-docker pull cgenomics/karyon
+docker pull cgenomics/karyon:1.2
 #  Start the container and indicate a volume and a container name
-docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyonpip:1.0
+docker run -dit --name=karyon -v $(pwd):/root/src/karyon/shared --rm cgenomics/karyon:1.2
 # Install all the necessary dependencies inside the running container. First run interactively the container
 docker exec -it karyon bash
 # Changing dir to the karyon volume in the container where the Dockerfile is located
