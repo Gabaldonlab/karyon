@@ -1,4 +1,4 @@
-
+#!/bin/env python
 desc="""Karyon pipeline.
 More info at: https://github.com/Gabaldonlab/karyon
 """
