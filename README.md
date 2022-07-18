@@ -89,7 +89,7 @@ cd /root/src/karyon/shared/
 
 ## Manual
 
-Please, check the [manual](https://github.com/Gabaldonlab/karyon/edit/master/Karyon_manual.pdf) for a comprehensive use of Karyon
+Please, check the [manual](https://github.com/Gabaldonlab/karyon/blob/master/Karyon_manual.pdf) for a comprehensive use of Karyon
 
 ## Authors 
 * **Miguel Ángel Naranjo Ortiz** - *Pipeline work* - [MANaranjo](https://github.com/MANaranjo)
