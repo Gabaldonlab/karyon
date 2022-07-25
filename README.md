@@ -11,7 +11,7 @@ Scripts contained in this repository:
 3) **spades_recipee.py** -> Karyon dependency. It generates a file that launches dipSPAdes () with the input.
 4) **varcall_recipee.py** -> Karyon dependency. It generates a file that launches all steps in the SNP calling pipeline.
 5) **karyonplots.py** -> Karyon dependency. It generates all the plots as part of the Karyon pipeline.
-6) **all_plots.py** -> Standalone version of karyonplots.py. It allows the user to input karyon results to generate the plots again.
+6) **allplots.py** -> Standalone version of karyonplots.py. It allows the user to input karyon results to generate the plots again.
 7) **nQuire_plot.py** -> It allows the user to run the local ploidy plot alone.
 8) **Dockerfile** -> Docker file involved in building the image to run Karyon
 9) **install.sh** -> Bash script required to install the remaining dependencies in the dockerfile
