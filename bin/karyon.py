@@ -339,7 +339,7 @@ def main():
 	os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
 	os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
 	os.system(config_dict["samtools"][0]+" samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
-	katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+"Report/")
+	katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+name+"Report/")
 	df = allplots(int(args.window_size), 
 		vcf, 
 		reduced_assembly, 
