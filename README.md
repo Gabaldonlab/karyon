@@ -1,4 +1,8 @@
 # Karyon
+![Latest Version](https://img.shields.io/github/v/tag/gabaldonlab/karyon?label=Latest%20Version)
+![Docker Pulls](https://img.shields.io/docker/pulls/cgenomics/karyon)
+[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://hub.docker.com/repository/docker/cgenomics/karyon)
+
 This repository contains the Karyon pipeline.
 
 ## Introduction
