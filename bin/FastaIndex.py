@@ -1,13 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 desc="""FastA index (.fai) handler compatible with samtools faidx (http://www.htslib.org/doc/faidx.html).
 .fai is extended with 4 columns storing counts for A, C, G & T for each sequence.
 """
 epilog="""Author: l.p.pryszcz+git@gmail.com
 Bratislava, 15/06/2016
+
+Updated to Python3 by Diego Fuentes Palacios
+Barcelona 07/07/2022
 """
 
 import os, sys
+from io import TextIOWrapper
 from datetime import datetime
+from functools import reduce
 
 def symlink(file1, file2):
     """Create symbolic link taking care of real path."""
@@ -32,19 +37,16 @@ class FastaIndex(object):
         self.genomeSize = 0
         self.whitespaces_in_headers = False
         # guess handle
-        handle = open(handle)
-        self.handle = handle
-        '''
-        if type(str(handle)) is str and os.path.isfile(str(handle)): 
+        if type(handle) is str and os.path.isfile(handle): 
             handle = open(handle)
-        if os.path.isfile(str(handle)) == True:
+        if type(handle) is TextIOWrapper:
             if handle.name.endswith(('.gz','.bz')):
                 raise Exception("Compressed files are currently not supported!")
             self.handle = handle
         else:
             sys.stderr.write("[ERROR] Couldn't guess handle for %s\n"%str(handle))
             sys.exit(1)
-            '''   
+            
         self.fasta  = self.handle.name
         self.faidx  = self.fasta + ext
         # check if fasta is symlink
@@ -64,9 +66,24 @@ class FastaIndex(object):
         self.base2rc= {"A": "T", "T": "A", "C": "G", "G": "C",
                        "a": "t", "t": "a", "c": "g", "g": "c",
                        "N": "N", "n": "n"}
-        # basecounts
-        self.basecounts = list(map(sum, zip(*[list(stats)[-4:] for stats in self.id2stats.values()])))
-        self.Ns = self.genomeSize - sum(self.basecounts)
+        # Calculate total counts
+        counts = []
+        #Select first index, as it includes contig length
+        base_stats = [self.id2stats[stats][0] for stats in self.id2stats]
+        for count in base_stats[0:]:
+            try:
+                _, bp = count.split("_", 1)
+            except:
+                bp = count
+            counts.append(bp)
+        #Apply reduce to a lambda function
+        self.totalcounts = reduce(lambda x, y: x+y, counts)
+     
+        #Store aswell all bases counted in a map function as well as Ns
+        self.basecounts = list(map(sum, zip(*[stats[-4:] for stats in self.id2stats.values()])))
+        
+        #Ns
+        self.Ns = int(self.genomeSize) - sum(self.basecounts)
 
     def __process_seqentry(self, out, header, seq, offset, pi):
         """Write stats to file and report any issues"""
@@ -83,7 +100,7 @@ class FastaIndex(object):
                 self.log("[WARNING] No sequence for: %s at line: %s\n"%(seqid, pi))
             # catch duplicates
             if seqid in self.id2stats:
-                self.log("[WARNING] Duplicated sequence ID: %sat line: %s\n"%(seqid, pi))
+                self.log("[WARNING] Duplicated sequence ID: %s at line: %s\n"%(seqid, pi))
             self.id2stats[seqid] = stats
             out.write("%s\t%s\n"%(seqid, "\t".join(map(str, stats))))
             
@@ -123,9 +140,8 @@ class FastaIndex(object):
             rid = ldata[0]
             stats = list(map(int, ldata[1:]))
             self.id2stats[rid] = stats
-            a = list(stats)[0]
             # update genomeSize
-            self.genomeSize += a
+            self.genomeSize += stats[0]
             if len(rid.split())>1:
                 self.whitespaces_in_headers = True
         return True
@@ -162,9 +178,9 @@ class FastaIndex(object):
             # 1-base, inclusive end
             start -= 1
             # get bytesize and update offset
-            offset += start / linebases * linebytes + start % linebases
+            offset += int(int(start / linebases) * linebytes) + start % linebases
             realsize = stop-start
-            bytesize = realsize / linebases * linebytes + realsize % linebases
+            bytesize = int(int(realsize / linebases) * linebytes) + realsize % linebases
             # read sequence slice
             self.handle.seek(offset)
             seq = self.handle.read(bytesize).replace('\n', '')
@@ -177,13 +193,13 @@ class FastaIndex(object):
         # load whole sequence record
         else:
             # get bytesize
-            bytesize = size / linebases * linebytes + size % linebases
+            bytesize = int(int(size / linebases) * linebytes) + size % linebases
             ## add line diff for last line only for multiline fasta if last line is not complete
             if size / linebytes and size % linebases:
                 bytesize += linediff 
             # read entire sequence
             self.handle.seek(offset)
-            seq = self.handle.read(bytesize)
+            seq = self.handle.read(int(bytesize))
             if seqonly:
                 return "".join(seq.split('\n'))
         # update name
@@ -336,20 +352,21 @@ class FastaIndex(object):
         # catch errors ie. empty files
         #if len(basecounts) != 4:
         #    return "%s\t[ERROR] Couldn't read file content\n"%handle.name
+        #bases = set(self.basecounts)
         (A, C, G, T) = self.basecounts
-        GC = 100.0*(G + C) / sum(self.basecounts)
+        
+        GC = 100.0*(int(G) + int(C)) / sum(self.basecounts)
+        
         return GC
 
     def stats(self):
         """Return FastA statistics aka fasta_stats"""
-        longest, lengths1000, contigs1000 = 0, 0, 0
-        for stats in self.id2stats.values():
-            longest = max(longest, list(stats)[0])
-            if len(stats) > 0 and list(stats)[0]>=1000:
-                lengths1000 = lengths1000 + list(stats)[0]
-                contigs1000 = contigs1000 + 1
+        longest = max(stats[0] for stats in self.id2stats.values())
+        lengths1000 = [x[0] for x in self.id2stats.values() if x[0]>=1000]
+        contigs1000 = len(lengths1000)
         _line = '%s\t%s\t%s\t%.3f\t%s\t%s\t%s\t%s\t%s\t%s\n'
-        line = [self.fasta, len(self), self.genomeSize, self.GC(), contigs1000, lengths1000, self.N50(), self.N90(), self.Ns, longest]
+        line = _line % (self.fasta, len(self), self.genomeSize, self.GC(), contigs1000, sum(lengths1000),
+                        self.N50(), self.N90(), self.Ns, longest)
         return line
 
 def main():
@@ -361,7 +378,7 @@ def main():
     parser.add_argument('--version', action='version', version='0.11c')	 
     parser.add_argument("-v", "--verbose", default=False, action="store_true",
                         help="verbose")	
-    parser.add_argument("-i", "--fasta", type=file, 
+    parser.add_argument("-i", "--fasta", type=str, 
                         help="FASTA file(s)")
     parser.add_argument("-o", "--out",	 default=sys.stdout, type=argparse.FileType('w'), 
                         help="output stream	 [stdout]")
@@ -393,6 +410,8 @@ def main():
     # fasta_stats
     if o.stats:
         o.out.write(faidx.stats())
+
+        print(faidx.stats())
         
     # report regions
     for region in o.regions:
@@ -411,4 +430,3 @@ if __name__=='__main__':
         sys.stderr.write("OS error({0}): {1}\n".format(e.errno, e.strerror))        
     dt = datetime.now()-t0
     sys.stderr.write("#Time elapsed: %s\n"%dt)
-    

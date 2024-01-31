@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/bin/env python3
 desc="""Karyon pipeline.
 More info at: https://github.com/Gabaldonlab/karyon
 """
@@ -158,7 +158,7 @@ def main():
 
 
 	from karyonplots import katplot, allplots
-	katplot("", "", config_dict["KAT"][0], "")
+	#katplot("", "", config_dict["KAT"][0], "")
 
 
 	###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
@@ -268,16 +268,20 @@ def main():
 		for i in config_dict['BUSCO'][1:]:
 			busco_options = busco_options + " " + i[:-1]
 		karyonjobfile.write("\n")
-		karyonjobfile.write("conda run -n busco_env busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
+		#[WARNING]: Diego's fix added the busco env path from the MN4
+		#Modified the argument with "--prefix /busco/env/path" instead of -n busco_env
+		karyonjobfile.write("conda run --prefix /gpfs/projects/bsc40/project/pipelines/anaconda3/envs/busco_env busco " + "-i " + reduced_assembly + " -o " + name + busco_options + "\n")
 		karyonjobfile.write("mv " + name + " " + true_output+name+"_busco\n")
 		karyonjobfile.write("cp " + true_output+name+"_busco/short_summary*.txt " + true_output+name+".busco\n")
-		karyonjobfile.write("rm -r busco_downloads\n")
+		#karyonjobfile.write("rm -r busco_downloads\n")
 		if args.no_reduction == False:
 			karyonjobfile.write("\n")
-			karyonjobfile.write("conda run -n busco_env busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
+			#Modified the argument with "--prefix /busco/env/path" instead of -n busco_env
+			karyonjobfile.write("conda run -n --prefix /gpfs/projects/bsc40/project/pipelines/anaconda3/envs/busco_env busco " + "-i " + no_red_assembly + " -o " + name+"_no_reduc" + busco_options + "\n")
 			karyonjobfile.write("mv " + name + "_no_reduc " + true_output+name+"_no_reduc_busco\n")
 			karyonjobfile.write("cp " + true_output+name+"_busco/short_summary.specific.*.txt " + true_output+name+"_no_reduc.busco\n")
-			karyonjobfile.write("rm -r busco_downloads\n")
+			#Uncommented this to keep the busco in Y1000H project
+			#karyonjobfile.write("rm -r busco_downloads\n")
 			
 	karyonjobfile.close()
 
@@ -337,8 +341,8 @@ def main():
 	else:
 		vcf, bam, mpileup = parse_no_varcall(args.no_varcall)
 	os.system(config_dict["nQuire"][0]+" create -b "+ bam+' -o '+true_output+name+' -x\n')
-	os.system(config_dict["nQuire"][0]+" lrdmodel "+ true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
-	os.system(config_dict["samtools"][0]+" samtools flagstat "+bam+' > '+true_output+name+'.flagstat')
+	os.system(config_dict["nQuire"][0]+" lrdmodel -t "+str(n_nodes)+" " +true_output+name+'.bin > '+true_output+name+'.lrdtest\n')
+	os.system(config_dict["samtools"][0]+" samtools flagstat -@ "+str(n_nodes)+" "+bam+' > '+true_output+name+'.flagstat')
 	katplot(reduced_assembly, champion[1], config_dict["KAT"][0], true_output+name+"Report/")
 	df = allplots(int(args.window_size), 
 		vcf, 
