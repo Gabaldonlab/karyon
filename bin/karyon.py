@@ -220,6 +220,10 @@ def main():
 	
 	###Calling spades_recipee.py to generate the assembly job. In the future it should use config file to select the assembly program to use###
 	karyonjobfile = open(true_output+name+"_karyon.job", 'a')
+	my_command = ""
+	for a in sys.argv[:]:
+		my_command = my_command + " " + a
+	karyonjobfile.write("#Command: "+my_command)
 	karyonjobfile.write("\n")
 	switch = False
 	if args.no_assembly == False:
