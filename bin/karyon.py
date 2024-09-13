@@ -157,8 +157,8 @@ def main():
 	os.makedirs(path_tmp_jobid)
 
 
-	from karyonplots import katplot, allplots
-	katplot("", "", config_dict["KAT"][0], "")
+	#from karyonplots import katplot, allplots
+	#katplot("", "", config_dict["KAT"][0], "")
 
 
 	###Parses the libraries and checks their parameters for downstream analyses. Also performs trimming.###
